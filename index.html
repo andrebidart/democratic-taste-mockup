@@ -25,6 +25,7 @@
   #tip .t{font-weight:700;font-size:18px;line-height:1.1;margin-top:3px}
   #tip .a{font-size:14px;opacity:.75}
   #tip .go{font-size:12px;margin-top:6px;opacity:.5}
+  @media (max-width:700px){ #brand{font-size:28px;top:18px;left:18px} #brand small{font-size:10px} #proto{top:18px;right:14px;font-size:10px} #bottom b{font-size:22px} #bottom span{font-size:11px;display:block;padding:0 20px} }
   #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:18px;padding:40px;text-align:center}
 </style>
 <script type="importmap">
@@ -37,7 +38,7 @@
 <body>
 <div id="brand" class="ui">demo-<br>cratic<br>taste<small>TASTY TUNES FACTORY · CDMX</small></div>
 <div id="proto" class="ui">CONCEPT PROTOTYPE</div>
-<div id="bottom" class="ui"><b>all genres. no judgement.</b><span>hover a candy to see the release · click to listen · drag to look around (the kid won't like it)</span></div>
+<div id="bottom" class="ui"><b>all genres. no judgement.</b><span>hover (or tap) a candy to see the release · click to listen · drag to look around (the kid won't like it)</span></div>
 <div id="tip"><div class="cat"><span class="dot"></span><span class="c"></span></div><div class="t"></div><div class="a"></div><div class="go">click to listen ↗</div></div>
 <div id="err">Couldn't load the 3D library. Check your internet connection and refresh.</div>
 
@@ -86,7 +87,8 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 if(!Q.has('noenv')) scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.55;
 
-const camera = new THREE.PerspectiveCamera(28, innerWidth/innerHeight, 0.1, 300);
+const fovFor = a => a < 1 ? Math.min(62, 28/a*.78) : 28;
+const camera = new THREE.PerspectiveCamera(fovFor(innerWidth/innerHeight), innerWidth/innerHeight, 0.1, 300);
 const CAM_END = new THREE.Vector3(16, 12, 22), CAM_START = new THREE.Vector3(34, 30, 44);
 const TARGET = new THREE.Vector3(1, 1.9, 0);
 camera.position.copy(CAM_START);
@@ -347,7 +349,18 @@ controls.addEventListener('change', ()=>{ if (dragging && camera.position.distan
 controls.addEventListener('end', ()=>{ dragging = false; });
 addEventListener('pointermove', e=>{ ndc.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); pointer.copy(ndc); lastMove = t; });
 addEventListener('pointerleave', ()=>ndc.set(9,9));
-renderer.domElement.addEventListener('click', ()=>{ if (hovered){ kidJump = 1; window.open(hovered.userData.url,'_blank','noopener'); } });
+function pickAt(e){ ndc.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ndc, camera);
+  const list = candies.filter(c=>c.userData.state==='belt').map(c=>c.userData.hit); const h = ray.intersectObjects(list,false)[0];
+  return h ? h.object.userData.candy : null; }
+let touchPick = null;
+renderer.domElement.addEventListener('pointerdown', e=>{ lastMove = t; if (e.pointerType !== 'mouse') touchPick = pickAt(e); });
+renderer.domElement.addEventListener('click', e=>{
+  if (e.pointerType && e.pointerType !== 'mouse'){            // phones: 1st tap shows the release, 2nd tap opens it
+    const c = touchPick; if (!c) { ndc.set(9,9); return; }
+    if (c === hovered){ kidJump = 1; window.open(c.userData.url,'_blank','noopener'); }
+    else { hovered = c; hoverHold = 4; ndc.set(9,9); }
+    return; }
+  if (hovered){ kidJump = 1; window.open(hovered.userData.url,'_blank','noopener'); } });
 const tip = document.getElementById('tip');
 const tipC = tip.querySelector('.c'), tipT = tip.querySelector('.t'), tipA = tip.querySelector('.a'), tipDot = tip.querySelector('.dot');
 
@@ -517,7 +530,7 @@ function tick(){
 requestAnimationFrame(tick);
 
 addEventListener('resize', ()=>{
-  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  camera.aspect = innerWidth/innerHeight; camera.fov = fovFor(camera.aspect); camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 </script>
