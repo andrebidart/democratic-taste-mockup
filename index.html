@@ -26,6 +26,63 @@
   #tip .a{font-size:14px;opacity:.75}
   #tip .go{font-size:12px;margin-top:6px;opacity:.5}
   @media (max-width:700px){ #brand{font-size:28px;top:18px;left:18px} #brand small{font-size:10px} #proto{top:18px;right:14px;font-size:10px} #bottom b{font-size:22px} #bottom span{font-size:11px;display:block;padding:0 20px} }
+
+  /* header */
+  #hdr{top:0;left:0;right:0;display:flex;align-items:center;gap:16px;padding:18px 26px;pointer-events:auto;z-index:10}
+  .logo{font-weight:700;font-size:19px;line-height:.86;letter-spacing:-.5px;text-decoration:none;color:inherit;margin-right:auto;display:flex;align-items:center;gap:10px;cursor:pointer}
+  .logo .mark{width:42px;height:42px;border-radius:11px;background:#2a2233;display:grid;place-items:center;color:#fff;font-size:15px;letter-spacing:0}
+  .logo small{display:block;font-weight:500;font-size:10px;letter-spacing:.6px;margin-top:6px;opacity:.55}
+  #nav{display:flex;gap:4px;background:rgba(255,255,255,.65);backdrop-filter:blur(10px);padding:5px;border-radius:99px}
+  #nav a{padding:8px 15px;border-radius:99px;font-size:15px;cursor:pointer;font-weight:500;white-space:nowrap}
+  #nav a:hover{background:#fff}
+  #nav a.demo{background:#2a2233;color:#fff}
+  .lang{display:flex;background:rgba(255,255,255,.65);backdrop-filter:blur(10px);border-radius:99px;padding:4px}
+  .lang button{border:0;background:none;font:inherit;font-weight:700;font-size:13px;padding:7px 11px;border-radius:99px;cursor:pointer;color:inherit;opacity:.45}
+  .lang button.on{background:#ff4f8b;color:#fff;opacity:1}
+  #burger{display:none;border:0;background:#2a2233;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer}
+  #proto{top:auto;bottom:22px;left:22px;right:auto;font-size:10px}
+  #toast{position:fixed;left:50%;bottom:110px;transform:translate(-50%,10px);background:#2a2233;color:#fff;padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+  #toast.on{opacity:1;transform:translate(-50%,0)}
+  /* release panel */
+  #panel{position:fixed;top:86px;right:18px;bottom:18px;width:400px;background:#fff;border-radius:26px;box-shadow:0 24px 70px rgba(60,30,80,.25);
+         padding:18px 22px 20px;box-sizing:border-box;overflow-y:auto;transform:translateX(115%);transition:transform .5s cubic-bezier(.2,.9,.25,1.08);z-index:20}
+  #panel.open{transform:none}
+  #panel .x{position:absolute;top:28px;left:32px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:20px;line-height:1;cursor:pointer;color:#2a2233}
+  .cover{aspect-ratio:1;border-radius:18px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;color:#fff;box-sizing:border-box}
+  .cover b{font-size:32px;line-height:1;letter-spacing:-.5px;position:relative}
+  .cover i{font-style:normal;opacity:.85;font-size:13px;letter-spacing:1px;margin-top:6px;position:relative}
+  .cover .cl{position:absolute;top:14px;right:14px;font-size:10px;background:rgba(255,255,255,.25);padding:4px 9px;border-radius:99px;letter-spacing:1px;text-transform:uppercase}
+  .meta{display:flex;gap:8px;margin:16px 0 4px;align-items:center}
+  .pill{background:#2a2233;color:#fff;font-size:11px;padding:4px 10px;border-radius:99px;letter-spacing:1px}
+  .chip{background:#f1ebf5;font-size:12px;padding:4px 10px;border-radius:99px;display:flex;align-items:center;gap:6px}
+  .chip .d{width:9px;height:9px;border-radius:50%}
+  #pTitle{font-size:30px;margin:6px 0 2px;line-height:1.05;letter-spacing:-.5px}
+  .artist{color:#2a2233;opacity:.7;font-size:17px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .player{display:flex;align-items:center;gap:12px;background:#f5f0f8;border-radius:18px;padding:10px 14px;margin:16px 0 4px}
+  .player button{width:44px;height:44px;border-radius:50%;border:0;background:#2a2233;color:#fff;font-size:15px;cursor:pointer;flex:none}
+  .bars{display:flex;align-items:center;gap:3px;height:34px;flex:1}
+  .bars span{flex:1;background:#cbbbe0;border-radius:2px}
+  .player.playing .bars span{background:#ff86bd;animation:bar .5s ease-in-out infinite alternate}
+  @keyframes bar{from{transform:scaleY(.35)}to{transform:scaleY(1)}}
+  .time{font-size:12px;opacity:.6;width:62px;text-align:right}
+  .pnote{font-size:11px;opacity:.4;margin:0 0 6px 4px}
+  #panel h4{margin:18px 0 5px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;opacity:.45}
+  #panel p{margin:0;font-size:15px;line-height:1.45;opacity:.8}
+  .credits{font-size:15px;line-height:1.7}
+  .credits span{opacity:.55}
+  .credits a{color:#ff4f8b;text-decoration:none;font-weight:500}
+  .cta{display:block;text-align:center;margin:22px 0 12px;background:#ff4f8b;color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:15px;border-radius:99px}
+  .cta:hover{background:#ff3576}
+  .nav2{display:flex;justify-content:space-between}
+  .nav2 button{border:0;background:none;font:inherit;font-size:14px;opacity:.55;cursor:pointer;color:inherit;padding:6px 2px}
+  .nav2 button:hover{opacity:1}
+  @media (max-width:760px){
+    #hdr{padding:14px 14px;gap:8px} .logo{font-size:16px} .logo .mark{width:36px;height:36px} .logo small{display:none}
+    #nav{display:none;position:absolute;top:66px;right:14px;flex-direction:column;background:#fff;box-shadow:0 12px 30px rgba(60,30,80,.18);border-radius:20px;padding:8px}
+    #nav.open{display:flex} #burger{display:block}
+    #panel{top:auto;left:0;right:0;bottom:0;width:auto;max-height:84vh;border-radius:26px 26px 0 0;transform:translateY(105%)}
+    #proto{display:none}
+  }
   #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:18px;padding:40px;text-align:center}
 </style>
 <script type="importmap">
@@ -36,10 +93,30 @@
 </script>
 </head>
 <body>
-<div id="brand" class="ui">demo-<br>cratic<br>taste<small>TASTY TUNES FACTORY · CDMX</small></div>
-<div id="proto" class="ui">CONCEPT PROTOTYPE</div>
-<div id="bottom" class="ui"><b>all genres. no judgement.</b><span>hover (or tap) a candy to see the release · click to listen · drag to look around (the kid won't like it)</span></div>
-<div id="tip"><div class="cat"><span class="dot"></span><span class="c"></span></div><div class="t"></div><div class="a"></div><div class="go">click to listen ↗</div></div>
+<header id="hdr" class="ui">
+  <a class="logo" id="logo"><span class="mark">DT</span><span>demo-<br>cratic taste<small data-i="tagSmall">TASTY TUNES FACTORY · CDMX</small></span></a>
+  <nav id="nav"><a data-i="releases" data-soon>Releases</a><a data-i="artists" data-soon>Artists</a><a data-i="about" data-soon>About</a><a class="demo" data-i="demos" data-soon>Send demos</a></nav>
+  <div class="lang"><button data-l="es">ES</button><button data-l="en" class="on">EN</button></div>
+  <button id="burger" aria-label="menu">☰</button>
+</header>
+<div id="proto" class="ui" data-i="proto">CONCEPT PROTOTYPE</div>
+<div id="bottom" class="ui"><b data-i="tagline">all genres. no judgement.</b><span data-i="hint"></span></div>
+<div id="tip"><div class="cat"><span class="dot"></span><span class="c"></span></div><div class="t"></div><div class="a"></div><div class="go" data-i="tipGo">click to open</div></div>
+<div id="toast"></div>
+<aside id="panel" aria-hidden="true">
+  <button class="x" id="pClose" aria-label="close">×</button>
+  <div class="cover" id="pCover"><span class="cl" data-i="coverPh">cover art</span><b id="pCoverT"></b><i id="pCoverN"></i></div>
+  <div class="meta"><span class="pill" id="pCat"></span><span class="chip"><span class="d" id="pDot"></span><span id="pFlav"></span></span></div>
+  <h2 id="pTitle"></h2>
+  <a class="artist" id="pArtist" data-soon></a>
+  <div class="player" id="pPlayer"><button id="pPlay" aria-label="play">▶</button><div class="bars" id="pBars"></div><span class="time" id="pTime">0:00 / 3:42</span></div>
+  <div class="pnote" data-i="playerNote"></div>
+  <h4 data-i="aboutH"></h4><p data-i="aboutTxt"></p>
+  <h4 data-i="credits"></h4>
+  <div class="credits"><span data-i="music"></span> <b id="pMusic"></b><br><span data-i="art"></span> <span id="pArt"></span></div>
+  <a class="cta" id="pListen" target="_blank" rel="noopener"><span data-i="listen"></span> ↗</a>
+  <div class="nav2"><button id="pPrev">← <span data-i="prev"></span></button><button id="pNext"><span data-i="next"></span> →</button></div>
+</aside>
 <div id="err">Couldn't load the 3D library. Check your internet connection and refresh.</div>
 
 <script type="module">
@@ -50,20 +127,20 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 /* ---------- data: real catalogue, newest first ---------- */
 const RELEASES = [
-  ['DT045','Forma y Origen','Filius Natura'],
-  ['DT044','Tears In June','The Little Alex'],
-  ['DT043','Música para divertirse Vol. I','Stereo Guy'],
-  ['DT042','Get Back To The Funk','O2J'],
-  ['DT041','Bump','Dimaio, Weckos'],
-  ['DT040','Everlasting Feeling','André Bidart'],
-  ['DT039','bajo el mundo','Kopo'],
-  ['DT038','Chain of Fools','YouKnowWho'],
-  ['DT037',"I Can't Stand Living Without You",'The Little Alex'],
-  ['DT036','Modular Love','Twisted Bass'],
-  ['DT035','Distressor','Poslovski'],
-  ['DT034','Dancebabydance','Microm Dee'],
-  ['DT033','De-But','quip'],
-  ['DT032','Jupiter Diner','chldrns'],
+  ['DT045','Forma y Origen','Filius Natura','@babych0ra & @brendamenattt'],
+  ['DT044','Tears In June','The Little Alex','@babych0ra'],
+  ['DT043','Música para divertirse Vol. I','Stereo Guy','@stereoguy_'],
+  ['DT042','Get Back To The Funk','O2J','@elidelolmo'],
+  ['DT041','Bump','Dimaio, Weckos','@medicenraul_'],
+  ['DT040','Everlasting Feeling','André Bidart','@_pietropucci'],
+  ['DT039','bajo el mundo','Kopo','@tra.um.a'],
+  ['DT038','Chain of Fools','YouKnowWho','@medicenraul_'],
+  ['DT037',"I Can't Stand Living Without You",'The Little Alex','@naavavita'],
+  ['DT036','Modular Love','Twisted Bass','@eljuegoesminorte'],
+  ['DT035','Distressor','Poslovski','@ayde_perezz'],
+  ['DT034','Dancebabydance','Microm Dee','@crissdsgn'],
+  ['DT033','De-But','quip','@makki.o.o_'],
+  ['DT032','Jupiter Diner','chldrns','@uinaina'],
 ];
 const PAL = { lilac:0x9d8cf0, sky:0x7fb2ff, pink:0xff86bd, hot:0xff4f8b, orange:0xff9a4d, yellow:0xffc94d,
               mint:0x6fd3a0, cream:0xfff4e6, ink:0x2a2233, white:0xf7f3fa, skin:0xffd2b0, hair:0x3a2a4a };
@@ -313,7 +390,7 @@ const HIT_GEO = new THREE.SphereGeometry(.85,10,8), HIT_MAT = new THREE.MeshBasi
 const candies = []; const pile = [];
 function makeCandy(idx){
   const [cat,title,artist] = RELEASES[idx % RELEASES.length];
-  const color = CANDY_COLORS[idx % CANDY_COLORS.length], shape = SHAPES[idx % SHAPES.length];
+  const color = CANDY_COLORS[idx % CANDY_COLORS.length], shape = SHAPES[(idx % RELEASES.length) % SHAPES.length];
   const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
   const c = new THREE.Color(color), m = mat(c,.32), m2 = mat(c.clone().lerp(new THREE.Color(0xffffff),.4),.45);
   let y0 = .38;
@@ -327,7 +404,7 @@ function makeCandy(idx){
     const r2=mesh(new THREE.TorusGeometry(.3,.06,10,32),m2,inner); r2.rotation.x=Math.PI/2; r2.position.y=.13; y0=.16; }
   const hit = new THREE.Mesh(HIT_GEO, HIT_MAT); hit.position.y = .1; g.add(hit); g.userData.hit = hit;
   hit.userData.candy = g;
-  Object.assign(g.userData, { cat,title,artist,color:'#'+c.getHexString(), url:`https://democratictaste.fanlink.tv/${cat}`,
+  Object.assign(g.userData, { ri: idx % RELEASES.length, shape, cat,title,artist,color:'#'+c.getHexString(), url:`https://democratictaste.fanlink.tv/${cat}`,
                  y0, state:'belt', age:0, hover:0, vx:0, vy:0, vz:0, spin:0, land:0 });
   return g;
 }
@@ -357,12 +434,82 @@ renderer.domElement.addEventListener('pointerdown', e=>{ lastMove = t; if (e.poi
 renderer.domElement.addEventListener('click', e=>{
   if (e.pointerType && e.pointerType !== 'mouse'){            // phones: 1st tap shows the release, 2nd tap opens it
     const c = touchPick; if (!c) { ndc.set(9,9); return; }
-    if (c === hovered){ kidJump = 1; window.open(c.userData.url,'_blank','noopener'); }
+    if (c === hovered){ kidJump = 1; openPanel(c.userData.ri); }
     else { hovered = c; hoverHold = 4; ndc.set(9,9); }
     return; }
-  if (hovered){ kidJump = 1; window.open(hovered.userData.url,'_blank','noopener'); } });
+  if (hovered){ kidJump = 1; openPanel(hovered.userData.ri); } });
 const tip = document.getElementById('tip');
 const tipC = tip.querySelector('.c'), tipT = tip.querySelector('.t'), tipA = tip.querySelector('.a'), tipDot = tip.querySelector('.dot');
+
+
+/* ---------- header, language, release panel ---------- */
+const I18N = {
+  en:{ releases:'Releases', artists:'Artists', about:'About', demos:'Send demos', tagSmall:'TASTY TUNES FACTORY · CDMX',
+       tagline:'all genres. no judgement.', hint:'hover or tap a candy · click it to open the release · drag to look around (the kid won’t like it)',
+       tipGo:'click to open', coverPh:'cover art', playerNote:'preview player · mockup', aboutH:'About the release',
+       aboutTxt:'Placeholder: a short write-up from the label about the record, the artist and its flavour goes here.',
+       credits:'Credits', music:'Music', art:'Artwork', listen:'Listen everywhere', prev:'Previous', next:'Next',
+       soon:'That section comes in the next mockup', proto:'CONCEPT PROTOTYPE', flavour:'flavour',
+       flav:{ wrapped:'Wrapped', lolly:'Lollipop', gummy:'Gummy', ring:'Ring' } },
+  es:{ releases:'Lanzamientos', artists:'Artistas', about:'Nosotros', demos:'Manda tu demo', tagSmall:'FÁBRICA DE RITMOS SABROSOS · CDMX',
+       tagline:'todos los géneros. sin juicios.', hint:'pasa el cursor o toca un dulce · haz click para abrir el lanzamiento · arrastra para mirar (al niño no le va a gustar)',
+       tipGo:'click para abrir', coverPh:'portada', playerNote:'reproductor de muestra · mockup', aboutH:'Sobre el lanzamiento',
+       aboutTxt:'Texto de ejemplo: aquí va una breve reseña del sello sobre el disco, el artista y su sabor.',
+       credits:'Créditos', music:'Música', art:'Arte', listen:'Escúchalo en todas partes', prev:'Anterior', next:'Siguiente',
+       soon:'Esa sección llega en el próximo mockup', proto:'PROTOTIPO DE CONCEPTO', flavour:'sabor',
+       flav:{ wrapped:'Envuelto', lolly:'Paleta', gummy:'Gomita', ring:'Aro' } },
+};
+let lang = 'en', panelIdx = -1, viewShift = 0;
+const $ = id => document.getElementById(id);
+function applyLang(l){
+  lang = l; document.documentElement.lang = l;
+  document.querySelectorAll('[data-i]').forEach(el=>{ const v = I18N[l][el.dataset.i]; if (typeof v === 'string') el.textContent = v; });
+  document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on', b.dataset.l === l));
+  if (panelIdx >= 0) fillPanel();
+}
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click', ()=>applyLang(b.dataset.l)));
+let toastT;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('on'), 1800); }
+document.querySelectorAll('[data-soon]').forEach(a=>a.addEventListener('click', ()=>{ toast(I18N[lang].soon); $('nav').classList.remove('open'); }));
+$('burger').addEventListener('click', ()=>$('nav').classList.toggle('open'));
+$('logo').addEventListener('click', closePanel);
+
+// fake preview player
+const bars = $('pBars');
+for (let i=0;i<28;i++){ const b = document.createElement('span'); b.style.height = (30 + Math.abs(Math.sin(i*1.7))*70) + '%'; b.style.animationDelay = (-(i*.13)%.5) + 's'; bars.appendChild(b); }
+let playing = false, playSec = 0, playTimer;
+function setPlaying(on){
+  playing = on; $('pPlayer').classList.toggle('playing', on); $('pPlay').textContent = on ? '❚❚' : '▶';
+  clearInterval(playTimer);
+  if (on) playTimer = setInterval(()=>{ playSec = (playSec+1) % 222; $('pTime').textContent = `${Math.floor(playSec/60)}:${String(playSec%60).padStart(2,'0')} / 3:42`; }, 1000);
+}
+$('pPlay').addEventListener('click', ()=>setPlaying(!playing));
+
+function fillPanel(){
+  const [cat,title,artist,art] = RELEASES[panelIdx];
+  const col = '#' + new THREE.Color(CANDY_COLORS[panelIdx % CANDY_COLORS.length]).getHexString();
+  const shape = SHAPES[panelIdx % SHAPES.length], L = I18N[lang];
+  $('pCover').style.background =
+    `radial-gradient(circle at 28% 30%, rgba(255,255,255,.55) 0 13%, transparent 14%),
+     radial-gradient(circle at 72% 38%, rgba(255,255,255,.25) 0 22%, transparent 23%),
+     radial-gradient(circle at 60% 85%, rgba(42,34,51,.25) 0 30%, transparent 31%),
+     linear-gradient(150deg, ${col}, #2a2233 120%)`;
+  $('pCoverT').textContent = title; $('pCoverN').textContent = `${cat} · ${artist}`;
+  $('pCat').textContent = cat; $('pDot').style.background = col; $('pFlav').textContent = `${L.flavour}: ${L.flav[shape]}`;
+  $('pTitle').textContent = title; $('pArtist').textContent = artist; $('pMusic').textContent = artist;
+  $('pArt').innerHTML = art.split(' & ').map(h=>`<a href="https://instagram.com/${h.slice(1)}" target="_blank" rel="noopener">${h}</a>`).join(' & ');
+  $('pListen').href = `https://democratictaste.fanlink.tv/${cat}`;
+}
+function openPanel(i){
+  panelIdx = (i + RELEASES.length) % RELEASES.length; setPlaying(false); playSec = 0; $('pTime').textContent = '0:00 / 3:42';
+  fillPanel(); $('panel').classList.add('open'); $('panel').setAttribute('aria-hidden','false'); $('panel').scrollTop = 0;
+}
+function closePanel(){ panelIdx = -1; setPlaying(false); $('panel').classList.remove('open'); $('panel').setAttribute('aria-hidden','true'); }
+$('pClose').addEventListener('click', closePanel);
+$('pPrev').addEventListener('click', ()=>openPanel(panelIdx - 1));
+$('pNext').addEventListener('click', ()=>openPanel(panelIdx + 1));
+addEventListener('keydown', e=>{ if (e.key === 'Escape') closePanel(); if (panelIdx>=0 && e.key==='ArrowRight') openPanel(panelIdx+1); if (panelIdx>=0 && e.key==='ArrowLeft') openPanel(panelIdx-1); });
+applyLang('en');
 
 /* ---------- loop ---------- */
 const BPM = 118; const clock = new THREE.Clock();
@@ -461,7 +608,7 @@ function tick(){
 
   // the kid: mood = angry > love > sleep > smug
   kidJump = Math.max(0, kidJump - dt*1.6); angryT = Math.max(0, angryT - dt);
-  const mood = angryT > 0 ? 'angry' : hovered ? 'love' : (t - lastMove > 9 && !steal) ? 'sleep' : 'smug';
+  const mood = angryT > 0 ? 'angry' : (hovered || panelIdx >= 0) ? 'love' : (t - lastMove > 9 && !steal) ? 'sleep' : 'smug';
   const k = Math.min(dt*8,1), lerp = (o,key,v)=>{ o[key] += (v - o[key])*k; };
   const bounce = Math.pow(Math.sin(bp*Math.PI),2);
   const amp = mood==='love' ? .22 : mood==='sleep' ? 0 : .07;
@@ -523,6 +670,11 @@ function tick(){
   zzz.visible = mood==='sleep'; if (zzz.visible){ zzz.position.y = .75 + (t*.4%1)*.3; zzz.material.opacity = 1 - (t*.4%1)*.6; }
   anger.visible = mood==='angry'; if (anger.visible) anger.scale.setScalar(.42 + Math.abs(Math.sin(t*14))*.1);
 
+  const wantShift = panelIdx >= 0 && innerWidth > 760 ? 210 : 0;
+  if (Math.abs(wantShift - viewShift) > .5 || (wantShift === 0 && viewShift !== 0)){
+    viewShift += (wantShift - viewShift) * Math.min(dt*6,1); if (Math.abs(viewShift) < .5) viewShift = 0;
+    if (viewShift) camera.setViewOffset(innerWidth, innerHeight, viewShift, 0, innerWidth, innerHeight); else camera.clearViewOffset();
+  }
   renderer.render(scene, camera);
   window.__frames=(window.__frames||0)+1;
   requestAnimationFrame(tick);
