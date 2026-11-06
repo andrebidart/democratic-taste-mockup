@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Democratic Taste · candy line (prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#ece4f0;font-family:Fredoka,system-ui,sans-serif;color:#2a2233}
+  canvas{display:block}
+  .ui{position:fixed;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+  .show{opacity:1}
+  #brand{top:28px;left:34px;font-weight:700;font-size:40px;line-height:.86;letter-spacing:-1px}
+  #brand small{display:block;font-weight:500;font-size:13px;letter-spacing:.5px;margin-top:12px;opacity:.6}
+  #proto{top:28px;right:30px;font-size:12px;background:#2a2233;color:#fff;padding:6px 12px;border-radius:99px;letter-spacing:.5px}
+  #bottom{bottom:30px;left:0;right:0;text-align:center}
+  #bottom b{display:block;font-size:30px;font-weight:700;letter-spacing:-.5px}
+  #bottom span{font-size:14px;opacity:.6}
+  #tip{position:fixed;left:0;top:0;pointer-events:none;opacity:0;transition:opacity .15s;will-change:transform;
+       background:#fff;border-radius:16px;padding:12px 16px 12px 14px;box-shadow:0 12px 30px rgba(60,30,80,.18);min-width:190px;white-space:nowrap}
+  #tip.on{opacity:1}
+  #tip .cat{font-size:11px;letter-spacing:1px;opacity:.55;display:flex;align-items:center;gap:6px}
+  #tip .dot{width:10px;height:10px;border-radius:50%}
+  #tip .t{font-weight:700;font-size:18px;line-height:1.1;margin-top:3px}
+  #tip .a{font-size:14px;opacity:.75}
+  #tip .go{font-size:12px;margin-top:6px;opacity:.5}
+  #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:18px;padding:40px;text-align:center}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="brand" class="ui">demo-<br>cratic<br>taste<small>TASTY TUNES FACTORY · CDMX</small></div>
+<div id="proto" class="ui">CONCEPT PROTOTYPE</div>
+<div id="bottom" class="ui"><b>all genres. no judgement.</b><span>hover a candy to see the release · click to listen · drag to look around (the kid won't like it)</span></div>
+<div id="tip"><div class="cat"><span class="dot"></span><span class="c"></span></div><div class="t"></div><div class="a"></div><div class="go">click to listen ↗</div></div>
+<div id="err">Couldn't load the 3D library. Check your internet connection and refresh.</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ---------- data: real catalogue, newest first ---------- */
+const RELEASES = [
+  ['DT045','Forma y Origen','Filius Natura'],
+  ['DT044','Tears In June','The Little Alex'],
+  ['DT043','Música para divertirse Vol. I','Stereo Guy'],
+  ['DT042','Get Back To The Funk','O2J'],
+  ['DT041','Bump','Dimaio, Weckos'],
+  ['DT040','Everlasting Feeling','André Bidart'],
+  ['DT039','bajo el mundo','Kopo'],
+  ['DT038','Chain of Fools','YouKnowWho'],
+  ['DT037',"I Can't Stand Living Without You",'The Little Alex'],
+  ['DT036','Modular Love','Twisted Bass'],
+  ['DT035','Distressor','Poslovski'],
+  ['DT034','Dancebabydance','Microm Dee'],
+  ['DT033','De-But','quip'],
+  ['DT032','Jupiter Diner','chldrns'],
+];
+const PAL = { lilac:0x9d8cf0, sky:0x7fb2ff, pink:0xff86bd, hot:0xff4f8b, orange:0xff9a4d, yellow:0xffc94d,
+              mint:0x6fd3a0, cream:0xfff4e6, ink:0x2a2233, white:0xf7f3fa, skin:0xffd2b0, hair:0x3a2a4a };
+const CANDY_COLORS = [PAL.hot, PAL.sky, PAL.orange, PAL.mint, PAL.lilac, PAL.yellow, PAL.pink];
+const SHAPES = ['wrapped','lolly','gummy','ring'];
+
+/* ---------- renderer / scene ---------- */
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+const Q=new URLSearchParams(location.search);
+renderer.setPixelRatio(Q.has('dpr')?+Q.get('dpr'):Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = !Q.has('noshadow');
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+document.body.appendChild(renderer.domElement);
+
+const BG = 0xece4f0;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(BG);
+const pmrem = new THREE.PMREMGenerator(renderer);
+if(!Q.has('noenv')) scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+
+const camera = new THREE.PerspectiveCamera(28, innerWidth/innerHeight, 0.1, 300);
+const CAM_END = new THREE.Vector3(16, 12, 22), CAM_START = new THREE.Vector3(34, 30, 44);
+const TARGET = new THREE.Vector3(1, 1.9, 0);
+camera.position.copy(CAM_START);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.copy(TARGET); controls.enableDamping = true; controls.enablePan = false;
+controls.minDistance = 14; controls.maxDistance = 45; controls.maxPolarAngle = Math.PI*0.47;
+controls.enabled = false;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd9c6e6, 1.0));
+const sun = new THREE.DirectionalLight(0xffffff, 2.4);
+sun.position.set(9, 18, 12); sun.target.position.set(1, 0, 0);
+sun.castShadow = true; sun.shadow.mapSize.set(1536, 1536);
+Object.assign(sun.shadow.camera, { left:-16, right:16, top:14, bottom:-14, near:1, far:60 });
+sun.shadow.bias = -0.0006;
+scene.add(sun, sun.target);
+
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(300,300), new THREE.ShadowMaterial({ opacity:0.16 }));
+ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
+
+/* ---------- helpers ---------- */
+const mat = (c, r=0.55) => new THREE.MeshStandardMaterial({ color:c, roughness:r, metalness:0 });
+const rbox = (w,h,d,r=0.25) => new RoundedBoxGeometry(w,h,d,4,r);
+function mesh(geo, m, parent=scene){ const o=new THREE.Mesh(geo,m); o.castShadow=o.receiveShadow=true; parent.add(o); return o; }
+const easeBack = x => { const c1=2.2, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); };
+const easeInOut = x => x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2;
+
+/* ---------- the machine (logo, rebuilt) ---------- */
+const machine = new THREE.Group(); machine.position.set(-4,0,0); scene.add(machine);
+const body = mesh(rbox(5,3.5,4,0.55), mat(PAL.lilac), machine); body.position.y = 2.25;
+for (const [x,z] of [[-2,-1.5],[2,-1.5],[-2,1.5],[2,1.5]]) { const f=mesh(new THREE.CylinderGeometry(.28,.34,.5,20), mat(PAL.ink,.6), machine); f.position.set(x,.25,z); }
+
+// keyboard on the front
+const keys = [];
+for (let i=0;i<9;i++){
+  const k = mesh(rbox(.42,.85,.34,.1), mat(PAL.white,.4), machine);
+  k.position.set(-1.92+i*.48, 1.3, 2.05); k.userData.z0 = 2.05; k.userData.press = 0; keys.push(k);
+}
+for (const i of [0,1,3,4,5,7]) { const b=mesh(rbox(.26,.5,.4,.08), mat(PAL.ink,.4), machine); b.position.set(-1.68+i*.48,1.5,2.12); }
+
+// knobs
+const knobs = [];
+[PAL.hot, PAL.yellow, PAL.mint, PAL.sky].forEach((c,i)=>{
+  const g = new THREE.Group(); g.position.set(-1.6+i*1.05, 2.35, 2.0); g.rotation.x = Math.PI/2; machine.add(g);
+  mesh(new THREE.CylinderGeometry(.3,.34,.3,28), mat(c,.45), g).position.y=.15;
+  const mark = mesh(rbox(.07,.12,.24,.03), mat(PAL.white), g); mark.position.set(0,.31,-.15);
+  knobs.push(g);
+});
+
+// little screen
+const scrCanvas = document.createElement('canvas'); scrCanvas.width=1024; scrCanvas.height=160;
+const scrCtx = scrCanvas.getContext('2d'); const scrTex = new THREE.CanvasTexture(scrCanvas); scrTex.colorSpace = THREE.SRGBColorSpace;
+function drawScreen(txt){
+  scrCtx.fillStyle='#2a2233'; scrCtx.fillRect(0,0,1024,160);
+  scrCtx.fillStyle='#6fd3a0'; scrCtx.font='600 54px Fredoka, sans-serif'; scrCtx.textBaseline='middle';
+  scrCtx.fillText(txt, 40, 84); scrTex.needsUpdate = true;
+}
+drawScreen('NOW COOKING ▸ warming up…');
+mesh(rbox(3.9,.82,.2,.12), mat(PAL.ink,.5), machine).position.set(0,3.25,2.0);
+const screen = new THREE.Mesh(new THREE.PlaneGeometry(3.7,.58), new THREE.MeshBasicMaterial({ map:scrTex, toneMapped:false }));
+screen.position.set(0,3.25,2.111); machine.add(screen);
+
+// output chute (right side)
+mesh(rbox(.3,1.25,2.1,.14), mat(PAL.ink,.7), machine).position.set(2.42,1.95,0);
+
+// hopper funnel on top, full of candy
+const hop = new THREE.Group(); hop.position.set(-1.0,4.0,-.4); machine.add(hop);
+const prof = [[.55,0],[.6,.15],[1.25,1.15],[1.4,1.35]].map(([x,y])=>new THREE.Vector2(x,y));
+const funnel = mesh(new THREE.LatheGeometry(prof,48), new THREE.MeshStandardMaterial({color:PAL.pink,roughness:.5,side:THREE.DoubleSide}), hop);
+const hopRim = mesh(new THREE.TorusGeometry(1.4,.12,16,48), mat(PAL.hot), hop);
+hopRim.rotation.x = Math.PI/2; hopRim.position.y = 1.35;
+for (let i=0;i<22;i++){
+  const a=Math.random()*Math.PI*2, r=Math.random()*1.0;
+  const s = mesh(new THREE.SphereGeometry(.2+Math.random()*.1,20,12), mat(CANDY_COLORS[i%CANDY_COLORS.length],.35), hop);
+  s.position.set(Math.cos(a)*r, 1.12+Math.random()*.25, Math.sin(a)*r);
+}
+
+// cooking pot + steam
+const pot = new THREE.Group(); pot.position.set(1.35,4.0,.6); machine.add(pot);
+mesh(new THREE.CylinderGeometry(.6,.5,.75,32), mat(PAL.orange,.5), pot).position.y=.38;
+mesh(new THREE.TorusGeometry(.6,.08,12,32), mat(PAL.orange,.5), pot).rotation.x=Math.PI/2; pot.children[1].position.y=.75;
+for (const s of [-1,1]) { const h=mesh(new THREE.TorusGeometry(.16,.05,8,16,Math.PI), mat(PAL.ink), pot); h.position.set(s*.66,.55,0); h.rotation.z=-s*Math.PI/2; }
+const puffs = []; const puffGeo = new THREE.SphereGeometry(.3,20,12);
+for (let i=0;i<14;i++){ const m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,transparent:true,opacity:0,depthWrite:false});
+  const p=new THREE.Mesh(puffGeo,m); p.userData.life=-1; scene.add(p); puffs.push(p); }
+
+// speaker box (left)
+const spk = new THREE.Group(); spk.position.set(-7.95,0,0); scene.add(spk);
+mesh(rbox(2.4,3.4,2.6,.4), mat(PAL.pink), spk).position.y = 1.7;
+const woofer = new THREE.Group(); woofer.position.set(0,1.3,1.31); spk.add(woofer);
+mesh(new THREE.TorusGeometry(.78,.14,16,48), mat(PAL.ink,.6), woofer);
+const cone = mesh(new THREE.ConeGeometry(.68,.45,40,1,true), new THREE.MeshStandardMaterial({color:PAL.white,roughness:.7,side:THREE.DoubleSide}), woofer);
+cone.rotation.x = -Math.PI/2; cone.position.z = -.12;
+mesh(new THREE.SphereGeometry(.22,24,12), mat(PAL.hot,.4), woofer).scale.z=.6;
+const tweet = new THREE.Group(); tweet.position.set(0,2.65,1.31); spk.add(tweet);
+mesh(new THREE.TorusGeometry(.3,.08,12,32), mat(PAL.ink,.6), tweet);
+mesh(new THREE.SphereGeometry(.18,20,10), mat(PAL.yellow,.4), tweet).scale.z=.5;
+
+/* ---------- conveyor ---------- */
+const BELT_X0 = -1.4, BELT_X1 = 9.0, BELT_TOP = 1.46, BELT_LEN = BELT_X1-BELT_X0;
+const beltCx = (BELT_X0+BELT_X1)/2;
+mesh(rbox(BELT_LEN+.6,.5,2.5,.22), mat(PAL.white,.5)).position.set(beltCx,1.1,0);
+const stripe = document.createElement('canvas'); stripe.width=64; stripe.height=8;
+const sc = stripe.getContext('2d'); sc.fillStyle='#fff4e6'; sc.fillRect(0,0,64,8); sc.fillStyle='#e6d9ef'; sc.fillRect(0,0,10,8);
+const beltTex = new THREE.CanvasTexture(stripe); beltTex.wrapS = beltTex.wrapT = THREE.RepeatWrapping; beltTex.repeat.set(26,1); beltTex.colorSpace=THREE.SRGBColorSpace;
+mesh(new THREE.BoxGeometry(BELT_LEN,.12,2.1), new THREE.MeshStandardMaterial({map:beltTex,roughness:.6})).position.set(beltCx,BELT_TOP-.06,0);
+const rollers=[];
+for (const x of [BELT_X0, BELT_X1]) { const r=mesh(new THREE.CylinderGeometry(.42,.42,2.6,28), mat(PAL.sky,.45)); r.rotation.x=Math.PI/2; r.position.set(x,1.1,0); rollers.push(r); }
+for (const x of [0.2, 4.0, 7.8]) for (const z of [-.95,.95]) { const l=mesh(new THREE.CylinderGeometry(.13,.13,1,16), mat(PAL.sky,.45)); l.position.set(x,.5,z); }
+
+// candy jar at the end
+const jar = new THREE.Group(); jar.position.set(10.45,0,0); scene.add(jar);
+mesh(new THREE.CylinderGeometry(1.05,1.05,.12,40), mat(PAL.white,.3), jar).position.y=.06;
+const glass = new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.05,1.35,40,1,true),
+  new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.08,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,clearcoat:1}));
+glass.position.y=.68; jar.add(glass);
+mesh(new THREE.TorusGeometry(1.15,.07,12,48), mat(PAL.white,.3), jar).rotation.x=Math.PI/2; jar.children[2].position.y=1.35;
+
+// floating clay bits (from your refs)
+const floaters = [];
+[[ -9.5,6.2,-3, new THREE.SphereGeometry(.75,32,16), PAL.orange],
+ [  2.5,6.8,-2.5, new THREE.SphereGeometry(.3,24,12), PAL.hot],
+ [  9.0,5.6,-3.5, new THREE.TorusGeometry(.5,.22,16,32), PAL.lilac],
+ [ -6.0,6.8, 2.5, new THREE.SphereGeometry(.22,24,12), PAL.mint],
+ [ 12.5,3.8, 1.5, rbox(.6,.6,.6,.2), PAL.yellow]].forEach(([x,y,z,g,c],i)=>{
+  const m=mesh(g,mat(c,.5)); m.position.set(x,y,z); m.userData.y0=y; m.userData.ph=i*1.7; floaters.push(m); });
+
+/* ---------- the Control Me kid (3D) ---------- */
+const KID = { skin:0xffe2cc, hair:0x1b1720, suit:0x26232d, suit2:0x37323f, pants:0xb89f7a, pants2:0x9c8462, tote:0xf3e3c3 };
+const kid = new THREE.Group(); kid.position.set(4.7,0,-1.85); kid.rotation.y = .42; kid.scale.setScalar(1.08); scene.add(kid);
+const kidBody = new THREE.Group(); kid.add(kidBody);
+// bare feet + baggy pants
+for (const s of [-1,1]) {
+  const foot = new THREE.Group(); foot.position.set(s*.28,.12,.1); kidBody.add(foot);
+  mesh(new THREE.CapsuleGeometry(.14,.26,6,12), mat(KID.skin,.6), foot).rotation.x = Math.PI/2;
+  for (let i=0;i<4;i++) mesh(new THREE.SphereGeometry(.05,10,8), mat(KID.skin,.6), foot).position.set((i-1.5)*.07,.03,.3);
+  mesh(new THREE.CylinderGeometry(.22,.29,.9,16), mat(KID.pants,.8), kidBody).position.set(s*.28,.82,0);
+  const pk = mesh(rbox(.1,.26,.3,.04), mat(KID.pants2,.8), kidBody); pk.position.set(s*.53,.95,0);
+  const hem = mesh(new THREE.TorusGeometry(.26,.07,10,24), mat(KID.pants2,.75), kidBody); hem.rotation.x=Math.PI/2; hem.position.set(s*.28,.36,0);
+}
+// oversized hoodie
+const torso = mesh(rbox(1.3,1.6,.82,.2), mat(KID.suit,.8), kidBody); torso.position.y = 2.2;
+const band = mesh(rbox(1.34,.2,.86,.08), mat(KID.suit2,.8), kidBody); band.position.y = 1.45;
+const hood = mesh(new THREE.TorusGeometry(.36,.16,12,24), mat(KID.suit2,.7), kidBody); hood.position.set(0,3.05,-.32); hood.rotation.x = -.5;
+const pocket = mesh(rbox(.8,.32,.12,.06), mat(KID.suit2,.7), kidBody); pocket.position.set(0,1.85,.42);
+const dtc = document.createElement('canvas'); dtc.width = dtc.height = 128; const dx = dtc.getContext('2d');
+dx.fillStyle='#2a2233'; dx.beginPath(); dx.arc(64,64,60,0,Math.PI*2); dx.fill();
+dx.fillStyle='#fff'; dx.font='700 62px Fredoka, sans-serif'; dx.textAlign='center'; dx.textBaseline='middle'; dx.fillText('DT',64,68);
+const dtTex = new THREE.CanvasTexture(dtc); dtTex.colorSpace = THREE.SRGBColorSpace;
+const dtc2 = document.createElement('canvas'); dtc2.width = dtc2.height = 128; const dx2 = dtc2.getContext('2d');
+dx2.fillStyle='#ff86bd'; dx2.beginPath(); dx2.arc(64,64,60,0,Math.PI*2); dx2.fill();
+dx2.fillStyle='#26232d'; dx2.font='700 62px Fredoka, sans-serif'; dx2.textAlign='center'; dx2.textBaseline='middle'; dx2.fillText('DT',64,68);
+const dtTex2 = new THREE.CanvasTexture(dtc2); dtTex2.colorSpace = THREE.SRGBColorSpace;
+const chest = new THREE.Mesh(new THREE.CircleGeometry(.17,24), new THREE.MeshStandardMaterial({map:dtTex2,roughness:.6}));
+chest.position.set(.3,2.6,.415); kidBody.add(chest);
+// tote bag full of DT candy (strap across the chest)
+const strap = mesh(new THREE.TorusGeometry(.95,.04,8,40), mat(KID.tote,.7), kidBody);
+strap.position.set(-.1,2.2,0); strap.rotation.set(0,0,.75); strap.scale.z = .8;
+const tote = new THREE.Group(); tote.position.set(-.82,1.45,.18); tote.rotation.z = .12; kidBody.add(tote);
+mesh(rbox(.62,.66,.24,.06), mat(KID.tote,.75), tote);
+const toteDT = new THREE.Mesh(new THREE.CircleGeometry(.13,20), new THREE.MeshStandardMaterial({map:dtTex,roughness:.6})); toteDT.position.z = .125; tote.add(toteDT);
+[PAL.hot,PAL.yellow,PAL.mint].forEach((c,i)=>{ mesh(new THREE.SphereGeometry(.12,14,10), mat(c,.35), tote).position.set(-.16+i*.16,.36,0); });
+// arms (wide sleeves)
+const arms = {}, hands = {};
+for (const s of [-1,1]) {
+  const p = new THREE.Group(); p.position.set(s*.74,2.92,0); kidBody.add(p);
+  mesh(new THREE.CylinderGeometry(.16,.2,.85,14), mat(KID.suit,.8), p).position.y = -.42;
+  const cuff = mesh(new THREE.TorusGeometry(.19,.06,8,20), mat(KID.suit2,.7), p); cuff.rotation.x = Math.PI/2; cuff.position.y = -.85;
+  const h = mesh(new THREE.SphereGeometry(.14,16,12), mat(KID.skin,.6), p); h.position.y = -.98; h.scale.set(.9,1.15,.8);
+  arms[s] = p; hands[s] = h;
+}
+// head
+const head = new THREE.Group(); head.position.y = 3.62; kidBody.add(head);
+mesh(new THREE.CylinderGeometry(.2,.22,.4,16), mat(KID.skin,.6), kidBody).position.y = 3.25;
+const skull = mesh(new THREE.SphereGeometry(.64,40,24), mat(KID.skin,.6), head); skull.scale.set(.9,1.1,.92);
+for (const s of [-1,1]) { const ear = mesh(new THREE.SphereGeometry(.15,16,10), mat(KID.skin,.6), head); ear.position.set(s*.57,-.02,-.02); ear.scale.set(.55,1,.8); }
+const hairM = mat(KID.hair,.75);
+const cap = mesh(new THREE.SphereGeometry(.67,40,20,0,Math.PI*2,0,Math.PI*.47), hairM, head); cap.rotation.x = -.6; cap.position.y = .03;
+// spiky side/back tufts (like the cover)
+[[-1,.25,-.1,.9],[1,.25,-.1,-.9],[-1,.05,-.25,1.4],[1,.05,-.25,-1.4],[0,.2,-.6,0],[-.5,.45,-.45,.5],[.5,.45,-.45,-.5],[-.3,.62,.25,.3],[.25,.66,.3,-.2]].forEach(([x,y,z,rz])=>{
+  const tuft = mesh(new THREE.ConeGeometry(.13,.42,10), hairM, head);
+  const d = new THREE.Vector3(x,y+.3,z).normalize(); tuft.position.copy(d).multiplyScalar(.66);
+  tuft.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3(x*1.3,.6,z-.2).normalize());
+});
+// topknot
+const knot = new THREE.Group(); knot.position.set(0,.66,-.18); head.add(knot);
+mesh(new THREE.SphereGeometry(.21,20,14), hairM, knot).position.y = .14;
+const tie = mesh(new THREE.TorusGeometry(.13,.045,8,20), mat(PAL.hot,.4), knot); tie.rotation.x = Math.PI/2; tie.position.y = .02;
+const sprig = mesh(new THREE.ConeGeometry(.08,.3,8), hairM, knot); sprig.position.y = .38; sprig.rotation.z = -.3;
+// face: smug half-lidded eyes, brows, smirk
+const eyes = [];
+for (const s of [-1,1]) {
+  const e = new THREE.Group(); e.position.set(s*.23,.05,.57); head.add(e);
+  mesh(new THREE.SphereGeometry(.13,20,14), mat(0xffffff,.3), e).scale.set(1.2,1,.45);
+  const pupil = mesh(new THREE.SphereGeometry(.07,14,10), mat(PAL.ink,.3), e); pupil.scale.z = .5; pupil.position.set(-.035,-.03,.05);
+  const lid = mesh(new THREE.SphereGeometry(.145,20,14), mat(KID.skin,.6), e); lid.scale.set(1.2,1,.5); lid.position.z = .015;
+  const lash = mesh(new THREE.CapsuleGeometry(.022,.27,4,8), mat(PAL.ink,.5), e); lash.rotation.z = Math.PI/2;
+  const brow = new THREE.Group(); brow.position.set(0,.22,.02); e.add(brow);
+  const bm = mesh(new THREE.CapsuleGeometry(.035,.2,4,8), mat(KID.hair,.6), brow); bm.rotation.z = Math.PI/2;
+  eyes.push({ s, g:e, lid, lash, brow, pupil, lidY:.1 });
+}
+const smirk = mesh(new THREE.TorusGeometry(.11,.028,8,16,Math.PI*.75), mat(PAL.ink,.5), head);
+smirk.position.set(.06,-.27,.6); smirk.rotation.set(-.2,0,Math.PI+.35);
+const grin = new THREE.Mesh(new THREE.CircleGeometry(.14,20,Math.PI,Math.PI), new THREE.MeshStandardMaterial({color:0x8a1f3d,roughness:.6}));
+grin.position.set(0,-.24,.625); grin.rotation.x = -.2; grin.visible = false; head.add(grin);
+// manga symbols (sprites)
+function symTex(draw){ const c=document.createElement('canvas'); c.width=c.height=128; draw(c.getContext('2d')); const tx=new THREE.CanvasTexture(c); tx.colorSpace=THREE.SRGBColorSpace; return tx; }
+const heartTex = symTex(x=>{ x.fillStyle='#ff4f8b'; x.strokeStyle='#2a2233'; x.lineWidth=8; x.beginPath(); x.moveTo(64,110);
+  x.bezierCurveTo(8,70,14,20,44,20); x.bezierCurveTo(56,20,64,30,64,40); x.bezierCurveTo(64,30,72,20,84,20); x.bezierCurveTo(114,20,120,70,64,110); x.closePath(); x.fill(); x.stroke(); });
+const zzzTex = symTex(x=>{ x.fillStyle='#5b6bd6'; x.font='700 40px Fredoka, sans-serif'; x.fillText('z',10,112); x.font='700 54px Fredoka, sans-serif'; x.fillText('z',40,80); x.font='700 68px Fredoka, sans-serif'; x.fillText('Z',72,54); });
+const angerTex = symTex(x=>{ x.strokeStyle='#ff3b5c'; x.lineWidth=15; x.lineCap='round';
+  for (let i=0;i<4;i++){ x.save(); x.translate(64,64); x.rotate(i*Math.PI/2); x.beginPath(); x.moveTo(14,-44); x.quadraticCurveTo(14,-14,44,-14); x.stroke(); x.restore(); } });
+const sparkTex = symTex(x=>{ x.fillStyle='#ffc94d'; x.strokeStyle='#2a2233'; x.lineWidth=6; x.beginPath();
+  for (let i=0;i<8;i++){ const a=i*Math.PI/4, r=i%2?16:56; x.lineTo(64+Math.cos(a)*r, 64+Math.sin(a)*r); } x.closePath(); x.fill(); x.stroke(); });
+const spr = (tex, sc) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false })); s.scale.setScalar(sc); s.visible=false; head.add(s); return s; };
+const heartL = spr(heartTex,.36), heartR = spr(heartTex,.36); heartL.position.set(-.23,.06,.7); heartR.position.set(.23,.06,.7);
+const zzz = spr(zzzTex,.75); zzz.position.set(.7,.75,.2);
+const anger = spr(angerTex,.45); anger.position.set(.55,.62,.35);
+const spark = spr(sparkTex,.4); spark.position.set(-.6,.7,.3);
+
+/* ---------- candies ---------- */
+const HIT_GEO = new THREE.SphereGeometry(.85,10,8), HIT_MAT = new THREE.MeshBasicMaterial({ visible:false });
+const candies = []; const pile = [];
+function makeCandy(idx){
+  const [cat,title,artist] = RELEASES[idx % RELEASES.length];
+  const color = CANDY_COLORS[idx % CANDY_COLORS.length], shape = SHAPES[idx % SHAPES.length];
+  const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
+  const c = new THREE.Color(color), m = mat(c,.32), m2 = mat(c.clone().lerp(new THREE.Color(0xffffff),.4),.45);
+  let y0 = .38;
+  if (shape==='wrapped'){ mesh(new THREE.SphereGeometry(.36,32,16),m,inner).scale.set(1.3,1,1);
+    for (const s of [-1,1]){ const w=mesh(new THREE.ConeGeometry(.27,.36,16),m2,inner); w.rotation.z=s*Math.PI/2; w.position.x=s*.58; } y0=.38; }
+  if (shape==='lolly'){ mesh(new THREE.CylinderGeometry(.44,.44,.2,32),m,inner);
+    const sw=mesh(new THREE.TorusGeometry(.25,.055,10,28),mat(0xffffff,.4),inner); sw.rotation.x=Math.PI/2; sw.position.y=.1;
+    const st=mesh(new THREE.CylinderGeometry(.05,.05,.9,10),mat(0xffffff,.5),inner); st.rotation.z=Math.PI/2; st.position.x=.8; y0=.12; }
+  if (shape==='gummy'){ mesh(rbox(.62,.62,.62,.22),m,inner); y0=.33; }
+  if (shape==='ring'){ const r=mesh(new THREE.TorusGeometry(.3,.15,16,32),m,inner); r.rotation.x=Math.PI/2;
+    const r2=mesh(new THREE.TorusGeometry(.3,.06,10,32),m2,inner); r2.rotation.x=Math.PI/2; r2.position.y=.13; y0=.16; }
+  const hit = new THREE.Mesh(HIT_GEO, HIT_MAT); hit.position.y = .1; g.add(hit); g.userData.hit = hit;
+  hit.userData.candy = g;
+  Object.assign(g.userData, { cat,title,artist,color:'#'+c.getHexString(), url:`https://democratictaste.fanlink.tv/${cat}`,
+                 y0, state:'belt', age:0, hover:0, vx:0, vy:0, vz:0, spin:0, land:0 });
+  return g;
+}
+let spawnIdx = 0, squash = 0;
+function spawnCandy(){
+  const g = makeCandy(spawnIdx++);
+  g.position.set(BELT_X0+.2, BELT_TOP+g.userData.y0, (Math.random()-.5)*.5);
+  g.rotation.y = (Math.random()-.5)*.6; g.scale.setScalar(.01);
+  scene.add(g); candies.push(g); squash = 1;
+  drawScreen(`NOW COOKING ▸ ${g.userData.cat} ${g.userData.title}`);
+}
+
+/* ---------- interaction ---------- */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(9,9), pointer = new THREE.Vector2(0,0);
+let hovered = null, lastHovered = null, hoverHold = 0, kidJump = 0; const hitList = [];
+let steal = null, nextSteal = 7, angryT = 0, lastMove = 0, dragging = false; const camAtDown = new THREE.Vector3();
+controls.addEventListener('start', ()=>{ dragging = true; camAtDown.copy(camera.position); });
+controls.addEventListener('change', ()=>{ if (dragging && camera.position.distanceTo(camAtDown) > .6) angryT = 1.6; });
+controls.addEventListener('end', ()=>{ dragging = false; });
+addEventListener('pointermove', e=>{ ndc.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); pointer.copy(ndc); lastMove = t; });
+addEventListener('pointerleave', ()=>ndc.set(9,9));
+renderer.domElement.addEventListener('click', ()=>{ if (hovered){ kidJump = 1; window.open(hovered.userData.url,'_blank','noopener'); } });
+const tip = document.getElementById('tip');
+const tipC = tip.querySelector('.c'), tipT = tip.querySelector('.t'), tipA = tip.querySelector('.a'), tipDot = tip.querySelector('.dot');
+
+/* ---------- loop ---------- */
+const BPM = 118; const clock = new THREE.Clock();
+let t = 0, lastBeat = -1, beltV = 1.6, puffT = 0;
+const tmp = new THREE.Vector3();
+function onBeat(b){
+  const k = keys[(b*4)%9]; k.userData.press = 1;
+  if (b%3===0) keys[(b*7+2)%9].userData.press = 1;
+  if (b%2===0 && beltV > 1.2 && t > 1.2) spawnCandy();
+}
+function tick(){
+  const dt = Math.min(clock.getDelta(), .05); t += dt;
+  const beat = t*BPM/60, bi = Math.floor(beat), bp = beat-bi;
+  if (bi !== lastBeat){ lastBeat = bi; onBeat(bi); }
+
+  // intro camera
+  const intro = Math.min(t/3.2,1);
+  if (intro < 1) { camera.position.lerpVectors(CAM_START, CAM_END, easeInOut(intro)); camera.lookAt(TARGET); }
+  else if (!controls.enabled) { controls.enabled = true; document.querySelectorAll('.ui').forEach(u=>u.classList.add('show')); }
+  if (controls.enabled) controls.update();
+
+  // hover
+  let found = null;
+  if (controls.enabled) {
+    ray.setFromCamera(ndc, camera);
+    hitList.length = 0;
+    for (const c of candies) if (c.userData.state==='belt') hitList.push(c.userData.hit);
+    const hit = ray.intersectObjects(hitList, false)[0];
+    if (hit) found = hit.object.userData.candy;
+  }
+  if (found) { hovered = found; hoverHold = .2; }
+  else if (hovered) { hoverHold -= dt; if (hoverHold <= 0 || hovered.userData.state!=='belt') hovered = null; }
+  if (hovered !== lastHovered) {
+    renderer.domElement.style.cursor = hovered ? 'pointer' : '';
+    if (hovered) { const u = hovered.userData; tipC.textContent = u.cat; tipT.textContent = u.title; tipA.textContent = u.artist; tipDot.style.background = u.color; }
+    tip.classList.toggle('on', !!hovered);
+    lastHovered = hovered;
+  }
+  beltV += ((hovered?0:1.6) - beltV) * Math.min(dt*8,1);
+  beltTex.offset.x -= beltV*dt/(BELT_LEN/26);
+  rollers.forEach(r=>r.rotation.y -= beltV*dt/.42);
+
+  // candies
+  for (let i=candies.length-1;i>=0;i--){
+    const g = candies[i], u = g.userData; u.age += dt;
+    u.hover += ((g===hovered?1:0) - u.hover) * Math.min(dt*12,1);
+    if (u.state==='belt'){
+      g.position.x += beltV*dt;
+      const pop = easeBack(Math.min(u.age/.55,1));
+      g.scale.setScalar(Math.max(.01,pop*(1+.4*u.hover)));
+      g.children[0].position.y = .55*u.hover;
+      g.children[0].rotation.y += dt*2.5*u.hover;
+      if (g.position.x > BELT_X1+.1){ u.state='fall'; u.vx=1.2+Math.random()*1.1; u.vy=1.5; u.vz=(Math.random()-.5)*1.4; u.spin=(Math.random()-.5)*10;
+        u.land = .14 + u.y0*.6 + Math.min(pile.length,14)*.035 + Math.random()*.15; }
+    } else if (u.state==='fall'){
+      u.vy -= 20*dt; g.position.x += u.vx*dt; g.position.y += u.vy*dt; g.position.z += u.vz*dt;
+      g.rotation.x += u.spin*dt; g.rotation.z += u.spin*.7*dt;
+      const dx = g.position.x-jar.position.x, dz = g.position.z;
+      const rr = Math.hypot(dx,dz); if (rr > .8){ g.position.x = jar.position.x+dx/rr*.8; g.position.z = dz/rr*.8; }
+      if (g.position.y < u.land){ g.position.y = u.land; u.state='pile'; pile.push(g);
+        if (pile.length > 18){ const old = pile.shift(); old.userData.state='gone'; } }
+    } else if (u.state==='gone'){
+      g.scale.multiplyScalar(1-dt*6);
+      if (g.scale.x < .03){ scene.remove(g); candies.splice(i,1); g.traverse(o=>{ if(o.geometry && o.geometry!==HIT_GEO) o.geometry.dispose(); }); }
+    }
+  }
+
+  // tooltip
+  if (hovered){
+    tmp.copy(hovered.position); tmp.y += 1.4; tmp.project(camera);
+    const x = Math.round((tmp.x+1)/2*innerWidth), y = Math.round((1-tmp.y)/2*innerHeight);
+    tip.style.transform = `translate(${x}px,${y}px) translate(-50%,-100%)`;
+  }
+
+  // machine: squash on spawn, keys, knobs
+  squash = Math.max(0, squash - dt*4);
+  const sq = Math.sin(squash*Math.PI)*squash;
+  machine.scale.set(1+.035*sq, 1-.06*sq, 1+.035*sq);
+  keys.forEach(k=>{ k.userData.press = Math.max(0,k.userData.press-dt*5); k.position.z = k.userData.z0 - .13*k.userData.press; k.position.y = 1.3 - .05*k.userData.press; });
+  knobs.forEach((k,i)=>k.rotation.y = Math.sin(t*(.6+i*.35)+i)*1.6);
+  const thump = Math.pow(1-bp,4);
+  woofer.scale.setScalar(1+.12*thump); tweet.scale.setScalar(1+.08*Math.pow(1-((beat*2)%1),4));
+  hop.rotation.y += dt*.3;
+
+  // steam
+  puffT += dt;
+  if (puffT > .22){ puffT = 0; const p = puffs.find(p=>p.userData.life<0);
+    if (p){ p.userData.life = 0; pot.getWorldPosition(p.position); p.position.y += .85; p.position.x += (Math.random()-.5)*.3; p.userData.dx=(Math.random()-.5)*.3; } }
+  puffs.forEach(p=>{ const u=p.userData; if (u.life<0) return; u.life += dt/2.4;
+    if (u.life>=1){ u.life=-1; p.material.opacity=0; return; }
+    p.position.y += dt*1.1; p.position.x += u.dx*dt; p.scale.setScalar(.5+u.life*1.6);
+    p.material.opacity = Math.sin(u.life*Math.PI)*.85; });
+
+  // floaters
+  floaters.forEach(f=>{ f.position.y = f.userData.y0 + Math.sin(t*1.1+f.userData.ph)*.25; f.rotation.y += dt*.4; f.rotation.x += dt*.2; });
+
+  // the kid: mood = angry > love > sleep > smug
+  kidJump = Math.max(0, kidJump - dt*1.6); angryT = Math.max(0, angryT - dt);
+  const mood = angryT > 0 ? 'angry' : hovered ? 'love' : (t - lastMove > 9 && !steal) ? 'sleep' : 'smug';
+  const k = Math.min(dt*8,1), lerp = (o,key,v)=>{ o[key] += (v - o[key])*k; };
+  const bounce = Math.pow(Math.sin(bp*Math.PI),2);
+  const amp = mood==='love' ? .22 : mood==='sleep' ? 0 : .07;
+  const jump = Math.sin(kidJump*Math.PI)*1.4;
+  kidBody.position.y = bounce*amp + jump;
+  kidBody.rotation.y = kidJump*Math.PI*2;
+  const breathe = mood==='sleep' ? Math.sin(t*1.6)*.02 : 0;
+  kidBody.scale.set(1+.03*(1-bounce)*(amp>0)+breathe, 1-.03*(1-bounce)*(amp>0)+breathe, 1);
+
+  // steal a candy now and then
+  if (!steal && mood==='smug' && t > nextSteal){
+    const reachX = kid.position.x + .5;
+    const target = candies.find(c=>c.userData.state==='belt' && Math.abs(c.position.x - reachX) < .5);
+    if (target){ steal = { c:target, p:0 }; target.userData.state = 'stolen'; }
+  }
+  let reach = 0;
+  if (steal){
+    steal.p += dt/1.7; const p = steal.p, c = steal.c;
+    reach = p < .3 ? easeInOut(p/.3) : p < .5 ? 1 : Math.max(0, 1 - easeInOut((p-.5)/.35));
+    if (p > .3){
+      hands[1].getWorldPosition(tmp);
+      if (p < .85) c.position.lerp(tmp, Math.min(1, dt*14));
+      else { tote.getWorldPosition(tmp); tmp.y += .3; c.position.lerp(tmp, Math.min(1, dt*10)); c.scale.multiplyScalar(1 - dt*3); }
+      c.rotation.y += dt*6;
+    }
+    spark.visible = p > .5; spark.material.rotation += dt*4; spark.scale.setScalar(.35 + Math.sin(t*12)*.05);
+    if (p >= 1){ c.userData.state = 'gone'; tote.scale.setScalar(1.15); steal = null; spark.visible = false; nextSteal = t + 9 + Math.random()*6; }
+  }
+  tote.scale.lerp(new THREE.Vector3(1,1,1), Math.min(dt*6,1));
+  kidBody.rotation.x = .28*reach;
+
+  // arms
+  if (mood==='love'){ lerp(arms[1].rotation,'z', 2.3 + Math.sin(t*10)*.25); lerp(arms[-1].rotation,'z', -2.3 - Math.sin(t*10+1)*.25); lerp(arms[1].rotation,'x',0); lerp(arms[-1].rotation,'x',0); }
+  else if (mood==='angry'){ lerp(arms[1].rotation,'z',-.9); lerp(arms[-1].rotation,'z',.9); lerp(arms[1].rotation,'x',-1.1); lerp(arms[-1].rotation,'x',-1.0); }
+  else if (mood==='sleep'){ lerp(arms[1].rotation,'z',.06); lerp(arms[-1].rotation,'z',-.06); lerp(arms[1].rotation,'x',0); lerp(arms[-1].rotation,'x',0); }
+  else { lerp(arms[1].rotation,'z', .14 + .1*reach); lerp(arms[-1].rotation,'z', -.14 - bounce*.08); arms[1].rotation.x = -1.35*reach; lerp(arms[-1].rotation,'x',0); }
+
+  // head
+  const lookY = mood==='sleep' ? 0 : THREE.MathUtils.clamp(pointer.x*.9 - .35, -.9, .7);
+  const lookX = mood==='sleep' ? .35 : THREE.MathUtils.clamp(-pointer.y*.35, -.3, .3) + .25*reach;
+  lerp(head.rotation,'y', lookY); lerp(head.rotation,'x', lookX);
+  head.rotation.z = mood==='sleep' ? .12 : Math.sin(beat*Math.PI)*(mood==='love' ? .14 : .07);
+
+  // face
+  const blinking = (t%3.6) < .12;
+  const lidTarget = mood==='sleep' || blinking ? -.01 : mood==='love' ? .2 : mood==='angry' ? .07 : .1;
+  eyes.forEach(e=>{
+    e.lidY += (lidTarget - e.lidY)*Math.min(dt*18,1);
+    e.lid.position.y = e.lidY; e.lash.position.y = e.lidY - .125;
+    e.g.visible = mood !== 'love';
+    const raise = mood==='love' ? .06 : mood==='angry' ? -.04 : (e.s===1 ? .05 : 0);
+    const tilt = mood==='angry' ? -e.s*.45 : mood==='love' ? e.s*.25 : (e.s===1 ? -.18 : .05);
+    e.brow.position.y += (.22 + raise - e.brow.position.y)*k; e.brow.rotation.z += (tilt - e.brow.rotation.z)*k;
+  });
+  heartL.visible = heartR.visible = mood==='love';
+  if (mood==='love'){ const hs = .36 + Math.pow(1-bp,3)*.12; heartL.scale.setScalar(hs); heartR.scale.setScalar(hs); }
+  grin.visible = mood==='love'; smirk.visible = !grin.visible;
+  smirk.rotation.z = mood==='angry' ? .35 : Math.PI+.35;
+  zzz.visible = mood==='sleep'; if (zzz.visible){ zzz.position.y = .75 + (t*.4%1)*.3; zzz.material.opacity = 1 - (t*.4%1)*.6; }
+  anger.visible = mood==='angry'; if (anger.visible) anger.scale.setScalar(.42 + Math.abs(Math.sin(t*14))*.1);
+
+  renderer.render(scene, camera);
+  window.__frames=(window.__frames||0)+1;
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+<script>
+  setTimeout(()=>{ if(!document.querySelector('canvas')) document.getElementById('err').style.display='flex'; }, 8000);
+</script>
+</body>
+</html>
