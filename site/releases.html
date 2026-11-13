@@ -27,8 +27,28 @@
   /* ---------- catalogue: index + sticky cover (from A) ---------- */
   .catalog{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 56px;scroll-margin-top:80px;padding-bottom:60px}
   li{scroll-margin-top:90px}
-  .catalog h1{grid-column:1/-1;margin:48px 0 26px;font-size:clamp(48px,8vw,120px);line-height:.82;letter-spacing:-.04em;font-weight:700;text-transform:uppercase;display:flex;align-items:flex-start;gap:14px}
+  .cat-head{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:48px 0 26px}
+  .catalog h1{margin:0;font-size:clamp(48px,8vw,120px);line-height:.82;letter-spacing:-.04em;font-weight:700;text-transform:uppercase;display:flex;align-items:flex-start;gap:14px}
   .catalog h1 sup{font-family:var(--mono);font-size:14px;letter-spacing:0;font-weight:400;color:var(--mute);margin-top:.5em}
+
+  .view{display:flex;font-family:var(--mono);font-size:11px;text-transform:uppercase;border:1px solid var(--dim);border-radius:99px;padding:3px}
+  .view button{all:unset;cursor:pointer;padding:7px 14px;border-radius:99px;color:var(--mute);letter-spacing:.06em}
+  .view button.on{background:var(--fg);color:var(--bg)}
+
+  /* grid view (from B) */
+  .grid{grid-column:1/-1;display:none;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:40px 22px}
+  body.as-grid .grid{display:grid}
+  body.as-grid ol,body.as-grid aside{display:none}
+  .card{display:block;text-decoration:none;--c:#fff;scroll-margin-top:100px}
+  .card .cv{aspect-ratio:1;border-radius:4px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+  .card img{width:100%;height:100%;object-fit:cover}
+  .card:hover .cv,.card.on .cv{transform:translateY(-6px);box-shadow:0 26px 60px -18px var(--c)}
+  .card .cap{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;align-items:center}
+  .card .cat{font-family:var(--mono);font-size:11px;color:var(--mute)}
+  .card .candy{justify-self:end;transition:transform .3s}
+  .card:hover .candy{transform:rotate(-18deg) scale(1.3)}
+  .card .t{grid-column:1/-1;font-weight:700;text-transform:uppercase;font-size:15px;line-height:1.1}
+  .card .a{grid-column:1/-1;font-size:14px;color:#a9a5ad}
 
   ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
   li{border-bottom:1px solid var(--line)}
@@ -59,7 +79,9 @@
     .hero{grid-template-columns:1fr;gap:24px;padding:12px 0 40px}
     .hero .down{display:none}
     .catalog{grid-template-columns:1fr}
-    .catalog h1{margin:34px 0 18px}
+    .cat-head{margin:34px 0 18px}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 12px}
+    .card .t{font-size:13px}.card .a{font-size:12px}
     aside{display:none}
     .row{grid-template-columns:52px minmax(0,1fr) 26px;gap:12px;padding:12px 0;color:var(--fg)}
     .row .cat,.row .art{display:none}
@@ -81,7 +103,11 @@
   <section class="hero" id="hero"></section>
 
   <section class="catalog" id="catalogo">
-    <h1>Catálogo <sup id="count"></sup></h1>
+    <div class="cat-head">
+      <h1>Catálogo <sup id="count"></sup></h1>
+      <div class="view" id="view"><button data-v="grid">Grid</button><button data-v="list">Lista</button></div>
+    </div>
+    <div class="grid" id="grid"></div>
     <ol id="list"></ol>
     <aside id="aside">
       <div class="stage"><div class="glow"></div><img id="imgA" alt=""><img id="imgB" alt="" style="opacity:0"></div>
@@ -102,12 +128,14 @@
 <script>
 const {R, esc, candy} = DT;
 DT.mount('releases.html');
-document.getElementById('count').textContent = `(${R.length})`;
+const rest = R.slice(1);
+document.getElementById('count').textContent = `(${rest.length})`;
 
 // ---- hero = newest release ----
 const h = R[0];
 const hero = document.getElementById('hero');
 hero.style.setProperty('--c', h.color);
+hero.style.scrollMarginTop = '90px';
 hero.innerHTML = `
   <div class="cv"><img src="${h.img}" alt="${esc(h.title)} — ${esc(h.artist)}"></div>
   <div>
@@ -121,8 +149,8 @@ hero.innerHTML = `
 
 // ---- catalogue list ----
 const list = document.getElementById('list');
-list.innerHTML = R.map((r,i) => `
-  <li id="${r.cat}" data-i="${i}" style="--c:${r.color}">
+list.innerHTML = rest.map((r,i) => `
+  <li id="l-${r.cat}" data-i="${i}" style="--c:${r.color}">
     <a class="row" href="${r.link}" target="_blank" rel="noopener">
       <img class="thumb" src="${r.img}" alt="" loading="lazy">
       <span class="cat">${r.cat}</span>
@@ -141,11 +169,11 @@ const items = [...list.children];
 const aside = document.getElementById('aside');
 const A = document.getElementById('imgA'), B = document.getElementById('imgB');
 let front = A, cur = -1;
-R.forEach(r => { const im = new Image(); im.src = r.img; });
+rest.forEach(r => { const im = new Image(); im.src = r.img; });
 
 function show(i){
   if (i === cur) return; cur = i;
-  const r = R[i];
+  const r = rest[i];
   items.forEach((li,k) => li.classList.toggle('on', k === i));
   aside.style.setProperty('--c', r.color);
   const back = front === A ? B : A;
@@ -169,19 +197,44 @@ items.forEach((li,i) => {
 });
 
 function onScroll(){
-  if (!desktop.matches || hovering) return;
+  if (!desktop.matches || hovering || document.body.classList.contains('as-grid')) return;
   const y = innerHeight * 0.42;
   let best = 0, bd = 1e9;
   items.forEach((li,i) => { const b = li.getBoundingClientRect(); const d = Math.abs(b.top + b.height/2 - y); if (d < bd){ bd = d; best = i; } });
   show(best);
 }
 addEventListener('scroll', onScroll, {passive:true});
-// deep link: releases.html#DT034 jumps to that release
-const target = location.hash ? items.findIndex(li => '#' + li.id === location.hash) : -1;
-if (target > -1){
-  const li = items[target];
-  setTimeout(() => { li.scrollIntoView({block: desktop.matches ? 'center' : 'start'}); if (desktop.matches) show(target); else { li.classList.add('on'); cur = target; } }, 150);
-} else if (desktop.matches) show(0);
+// ---- grid ----
+document.getElementById('grid').innerHTML = rest.map(r => `
+  <a class="card" id="g-${r.cat}" href="${r.link}" target="_blank" rel="noopener" style="--c:${r.color}">
+    <div class="cv"><img src="${r.img}" alt="${esc(r.title)} — ${esc(r.artist)}" loading="lazy"></div>
+    <div class="cap"><span class="cat">${r.cat}</span>${candy(r.color)}
+      <span class="t">${esc(r.title)}</span><span class="a">${esc(r.artist)}</span></div>
+  </a>`).join('');
+
+// ---- Grid · Lista switch (remembered per visitor, shared with the minimal version) ----
+const view = document.getElementById('view');
+function setView(v){
+  document.body.classList.toggle('as-grid', v === 'grid');
+  view.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  if (v === 'list' && desktop.matches && cur < 0) show(0);
+  try { localStorage.setItem('dt-view', v); } catch {}
+}
+view.onclick = e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); };
+let saved = 'list'; try { saved = localStorage.getItem('dt-view') || 'list'; } catch {}
+setView(saved);
+
+// ---- deep link: releases.html#DT034 (from home / artists) ----
+if (location.hash){
+  const cat = location.hash.slice(1);
+  const grid = document.body.classList.contains('as-grid');
+  const el = cat === h.cat ? hero : document.getElementById((grid ? 'g-' : 'l-') + cat);
+  const i = rest.findIndex(r => r.cat === cat);
+  if (el) setTimeout(() => {
+    el.scrollIntoView({block: el === hero ? 'start' : (desktop.matches ? 'center' : 'start')});
+    if (el !== hero){ if (!grid && desktop.matches) show(i); else { el.classList.add('on'); cur = i; } }
+  }, 150);
+}
 </script>
 </body>
 </html>
