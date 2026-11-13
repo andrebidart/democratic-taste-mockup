@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Democratic Taste — Home (minimal mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+  .hero{min-height:calc(100vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;padding:20px 0 40px;text-align:center}
+  .hero img{width:min(560px,82%);height:auto;filter:drop-shadow(0 30px 50px rgba(0,0,0,.6))}
+  .hero p{margin:0;font-size:15px;color:var(--mute)}
+  .hero p b{font-weight:500;color:var(--fg)}
+  .hero .links{display:flex;gap:28px;justify-content:center;margin-top:18px}
+
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2vw,28px)}
+  .grid a{display:block}
+  .grid img{width:100%;aspect-ratio:1;object-fit:cover;transition:opacity .25s}
+  .grid a:hover img{opacity:.85}
+  .grid .cap{margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .grid .t{font-size:14px}
+  .grid .a{font-size:13px;color:var(--mute);margin-top:2px}
+
+  .about{max-width:620px;font-size:clamp(18px,2vw,22px);line-height:1.45;color:var(--mute)}
+  .about b{font-weight:400;color:var(--fg)}
+
+  @media (max-width:760px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} .hero{min-height:auto;padding:60px 0 20px} }
+</style>
+</head>
+<body>
+<div id="hdr"></div>
+<main>
+  <section class="hero">
+    <img src="img/logo-3d.png" alt="Democratic Taste">
+    <div>
+      <p><b>All genres, no judgement.</b> Tasty Tunes Factory — CDMX.</p>
+      <div class="links"><a class="link" href="releases.html">Releases →</a><a class="link" href="../">Fábrica →</a></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2 class="mono">Reciente</h2><a class="mono mute" href="releases.html">Ver todo →</a></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="sec">
+    <p class="about"><b>Sello y estudio creativo de música electrónica en la Ciudad de México.</b> Cada release, un artista visual. Sigue probando hasta encontrar tu próximo sabor favorito.</p>
+  </section>
+</main>
+<div id="ftr"></div>
+<script src="releases-data.js"></script>
+<script src="common.js"></script>
+<script>
+const {R, esc, candy} = DT;
+DT.mount('index.html');
+document.getElementById('grid').innerHTML = R.slice(0,4).map((r,i) => `
+  <a href="releases.html#${r.cat}">
+    <img src="${r.img}" alt="${esc(r.title)} — ${esc(r.artist)}">
+    <div class="cap"><span class="mono mute">${r.cat}${i===0?' · nuevo':''}</span>${candy(r.color)}</div>
+    <div class="t">${esc(r.title)}</div><div class="a">${esc(r.artist)}</div>
+  </a>`).join('');
+</script>
+</body>
+</html>

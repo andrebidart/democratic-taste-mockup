@@ -1,0 +1,44 @@
+/* Democratic Taste — MINIMAL site mockup.
+   Black page, small type, lots of space. The covers are the only colour. */
+:root{
+  --bg:#0a0a0b; --fg:#ece9e4; --mute:#6f6b73; --line:#1c1b1f;
+  --sans:'Space Grotesk',system-ui,sans-serif; --mono:'Space Mono',ui-monospace,monospace;
+  --pad:clamp(16px,4vw,48px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.mute{color:var(--mute)}
+
+/* header: plain text, no boxes */
+header.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:28px;padding:22px var(--pad);background:linear-gradient(var(--bg) 75%,transparent)}
+.mark{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-right:auto}
+.nav{display:flex;gap:26px}
+.nav a,.lang a{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);transition:color .2s}
+.nav a:hover,.nav a.on,.lang a.on{color:var(--fg)}
+.lang{display:flex;gap:10px}
+.menu-btn{display:none}
+@media (max-width:760px){
+  .nav{display:none}
+  header.top.open .nav{display:flex;flex-direction:column;gap:18px;position:absolute;top:60px;left:0;right:0;padding:20px var(--pad) 28px;background:var(--bg);border-bottom:1px solid var(--line)}
+  .menu-btn{all:unset;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg)}
+}
+
+main{padding:0 var(--pad)}
+.sec{padding:clamp(70px,10vw,140px) 0 0}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:28px}
+h1,h2,h3{font-weight:500;letter-spacing:-.01em;margin:0}
+
+/* buttons = text links with an arrow */
+.link{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:3px}
+.link:hover{color:var(--c,var(--fg))}
+
+/* candy: tiny, only where it means "this release" */
+.candy{width:18px;height:9px;flex:none;display:inline-block;vertical-align:middle}
+
+/* footer: one quiet row */
+.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:clamp(80px,12vw,160px) var(--pad) 32px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.foot nav{display:flex;gap:20px;flex-wrap:wrap}
+.foot a:hover{color:var(--fg)}

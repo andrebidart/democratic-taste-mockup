@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Democratic Taste — About (minimal mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+  .txt{max-width:680px;padding-top:40px}
+  .txt p{font-size:clamp(18px,2vw,22px);line-height:1.5;color:var(--mute);margin:0 0 1.1em}
+  .txt p b{font-weight:400;color:var(--fg)}
+  .demos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(24px,5vw,72px);scroll-margin-top:90px}
+  .demos p{color:var(--mute);line-height:1.6;max-width:360px;margin:0}
+  form{display:grid;gap:22px}
+  label{display:grid;gap:6px}
+  input,textarea{font:inherit;font-size:16px;color:var(--fg);background:none;border:0;border-bottom:1px solid #2c2a30;padding:8px 0;border-radius:0}
+  input:focus,textarea:focus{outline:none;border-color:var(--fg)}
+  textarea{min-height:70px;resize:vertical}
+  button.link{all:unset;cursor:pointer;justify-self:start;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:3px}
+  .sent{display:none}
+  @media (max-width:760px){ .demos{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div id="hdr"></div>
+<main>
+  <h1 class="mono" style="padding-top:40px">About</h1>
+  <div class="txt">
+    <p><b>Democratic Taste es un sello y estudio creativo de música electrónica, nacido en la Ciudad de México en 2020.</b></p>
+    <p>Todos los géneros, sin juicios. Cada release lleva el arte de un artista visual — la portada es el caramelo.</p>
+    <p>Un trampolín para artistas nuevos y un patio de juegos para los consolidados.</p>
+  </div>
+
+  <section class="sec demos" id="demos">
+    <div><h2 class="mono" style="margin-bottom:16px">Send demos</h2><p>Un link privado a música original sin publicar. Escuchamos todo.</p></div>
+    <form id="form">
+      <label class="mono mute">Nombre / alias<input required></label>
+      <label class="mono mute">Email<input type="email" required></label>
+      <label class="mono mute">Link privado<input type="url" required placeholder="https://"></label>
+      <label class="mono mute">Mensaje<textarea></textarea></label>
+      <button class="link" type="submit">Enviar →</button>
+      <span class="mono mute sent" id="sent">Mockup — aún no envía nada.</span>
+    </form>
+  </section>
+</main>
+<div id="ftr"></div>
+<script src="releases-data.js"></script>
+<script src="common.js"></script>
+<script>
+DT.mount('about.html');
+document.getElementById('form').addEventListener('submit', e => { e.preventDefault(); document.getElementById('sent').style.display = 'block'; });
+</script>
+</body>
+</html>
