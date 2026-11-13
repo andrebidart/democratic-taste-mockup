@@ -8,24 +8,39 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="common.css">
 <style>
-  /* newest release: cover + quiet text */
-  .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:end;padding:40px 0 0}
+  /* newest release */
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:end;padding:40px 0 0;scroll-margin-top:90px}
   .hero img{width:100%;aspect-ratio:1;object-fit:cover}
   .hero h1{font-size:clamp(28px,3.4vw,44px);line-height:1.05;margin:14px 0 6px}
   .hero .artist{color:var(--mute);font-size:17px;margin-bottom:28px}
 
-  /* catalogue: list left, sticky cover right */
-  .catalog{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);scroll-margin-top:80px}
+  /* catalogue head + view switch */
+  .view{display:flex;gap:16px}
+  .view button{all:unset;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .view button.on{color:var(--fg);border-bottom:1px solid currentColor;padding-bottom:3px}
+
+  /* GRID view */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:44px clamp(14px,2vw,28px)}
+  .card{display:block;scroll-margin-top:90px}
+  .card img{width:100%;aspect-ratio:1;object-fit:cover;transition:opacity .25s}
+  .card:hover img{opacity:.85}
+  .card .cap{margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .card .candy{opacity:0;transition:opacity .2s}
+  .card:hover .candy,.card.on .candy{opacity:1}
+  .card .t{font-size:14px}
+  .card .a{font-size:13px;color:var(--mute);margin-top:2px}
+
+  /* LIST view: list left, sticky cover right */
+  .listview{display:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px)}
+  body.as-list .grid{display:none}
+  body.as-list .listview{display:grid}
   ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
   li{border-bottom:1px solid var(--line);scroll-margin-top:90px}
   .row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:baseline;padding:13px 0;color:var(--mute);transition:color .2s}
-  .row .who{font-size:15px}
-  .row .who span{color:inherit;opacity:.7}
+  .row .who span{opacity:.7}
   .row .candy{opacity:0;transition:opacity .2s}
   li.on .row{color:var(--fg)}
   li.on .row .candy{opacity:1}
-  .row .thumb{display:none}
-
   aside{position:sticky;top:90px;align-self:start}
   aside img{width:100%;aspect-ratio:1;object-fit:cover}
   aside .meta{display:flex;justify-content:space-between;gap:16px;align-items:baseline;margin-top:16px}
@@ -33,31 +48,36 @@
   aside .a{color:var(--mute);font-size:14px;margin-top:2px}
 
   @media (max-width:820px){
-    .hero,.catalog{grid-template-columns:1fr}
+    .hero{grid-template-columns:1fr}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 14px}
+    .card .candy{opacity:1}
+    body.as-list .listview{grid-template-columns:1fr}
     aside{display:none}
     .row{grid-template-columns:44px minmax(0,1fr);color:var(--fg);align-items:center}
-    .row .thumb{display:block;width:44px;height:44px;object-fit:cover}
     .row .cat,.row .candy{display:none}
-    .open{display:none;padding:6px 0 22px}
-    li.on .open{display:block}
-    .open img{width:100%;aspect-ratio:1;object-fit:cover;margin-bottom:14px}
+    .row .thumb{display:block;width:44px;height:44px;object-fit:cover}
   }
-  @media (min-width:821px){ .open{display:none} }
+  @media (min-width:821px){ .row .thumb{display:none} }
 </style>
 </head>
 <body>
 <div id="hdr"></div>
 <main>
   <section class="hero" id="hero"></section>
-  <section class="sec catalog" id="catalogo">
-    <div>
-      <div class="sec-head"><h2 class="mono">Catálogo</h2><span class="mono mute" id="count"></span></div>
-      <ol id="list"></ol>
+
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="mono">Catálogo <span class="mute" id="count"></span></h2>
+      <div class="view" id="view"><button data-v="grid" class="on">Grid</button><button data-v="list">Lista</button></div>
     </div>
-    <aside id="aside">
-      <img id="aImg" alt="">
-      <div class="meta"><div><div class="t" id="aT"></div><div class="a" id="aA"></div></div><a class="link" id="aL" target="_blank" rel="noopener">Escuchar →</a></div>
-    </aside>
+    <div class="grid" id="grid"></div>
+    <div class="listview">
+      <ol id="list"></ol>
+      <aside>
+        <img id="aImg" alt="">
+        <div class="meta"><div><div class="t" id="aT"></div><div class="a" id="aA"></div></div><a class="link" id="aL" target="_blank" rel="noopener">Escuchar →</a></div>
+      </aside>
+    </div>
   </section>
 </main>
 <div id="ftr"></div>
@@ -66,33 +86,44 @@
 <script>
 const {R, esc, candy} = DT;
 DT.mount('releases.html');
-document.getElementById('count').textContent = R.length;
 
+// newest release on top — and NOT repeated in the catalogue below
 const h = R[0];
-document.getElementById('hero').innerHTML = `
+const hero = document.getElementById('hero');
+hero.id = h.cat;
+hero.innerHTML = `
   <img src="${h.img}" alt="${esc(h.title)} — ${esc(h.artist)}">
   <div><span class="mono mute">${h.cat} · nuevo</span> ${candy(h.color)}
     <h1>${esc(h.title)}</h1><div class="artist">${esc(h.artist)}</div>
     <a class="link" style="--c:${h.color}" href="${h.link}" target="_blank" rel="noopener">Escuchar →</a></div>`;
 
+const rest = R.slice(1);
+document.getElementById('count').textContent = rest.length;
+
+// grid
+document.getElementById('grid').innerHTML = rest.map(r => `
+  <a class="card" id="g-${r.cat}" href="${r.link}" target="_blank" rel="noopener">
+    <img src="${r.img}" alt="${esc(r.title)} — ${esc(r.artist)}" loading="lazy">
+    <div class="cap"><span class="mono mute">${r.cat}</span>${candy(r.color)}</div>
+    <div class="t">${esc(r.title)}</div><div class="a">${esc(r.artist)}</div>
+  </a>`).join('');
+
+// list
 const list = document.getElementById('list');
-list.innerHTML = R.map((r,i) => `
-  <li id="${r.cat}">
+list.innerHTML = rest.map(r => `
+  <li id="l-${r.cat}">
     <a class="row" href="${r.link}" target="_blank" rel="noopener">
       <img class="thumb" src="${r.img}" alt="" loading="lazy">
       <span class="cat mono">${r.cat}</span>
       <span class="who">${esc(r.artist)} — <span>${esc(r.title)}</span></span>
       ${candy(r.color)}
     </a>
-    <div class="open"><img src="${r.img}" alt="${esc(r.title)}" loading="lazy"><a class="link" href="${r.link}" target="_blank" rel="noopener">Escuchar →</a></div>
   </li>`).join('');
-
 const items = [...list.children];
 const desktop = matchMedia('(min-width:821px)');
 let cur = -1, hovering = false;
-R.forEach(r => { new Image().src = r.img; });
 function show(i){
-  if (i === cur) return; cur = i; const r = R[i];
+  if (i === cur) return; cur = i; const r = rest[i];
   items.forEach((li,k) => li.classList.toggle('on', k === i));
   document.getElementById('aImg').src = r.img;
   document.getElementById('aT').textContent = r.title;
@@ -102,21 +133,33 @@ function show(i){
 items.forEach((li,i) => {
   li.addEventListener('mouseenter', () => { if (desktop.matches){ hovering = true; show(i); } });
   li.addEventListener('mouseleave', () => { hovering = false; });
-  li.querySelector('.row').addEventListener('click', e => {
-    if (desktop.matches) return;
-    e.preventDefault(); const was = li.classList.contains('on');
-    items.forEach(x => x.classList.remove('on')); if (!was) li.classList.add('on');
-  });
 });
 addEventListener('scroll', () => {
-  if (!desktop.matches || hovering) return;
+  if (!desktop.matches || hovering || !document.body.classList.contains('as-list')) return;
   const y = innerHeight * .42; let best = 0, bd = 1e9;
   items.forEach((li,i) => { const b = li.getBoundingClientRect(); const d = Math.abs(b.top + b.height/2 - y); if (d < bd){ bd = d; best = i; } });
   show(best);
 }, {passive:true});
-const target = location.hash ? items.findIndex(li => '#' + li.id === location.hash) : -1;
-if (target > -1) setTimeout(() => { items[target].scrollIntoView({block:'center'}); if (desktop.matches) show(target); else items[target].classList.add('on'); }, 150);
-else if (desktop.matches) show(0);
+
+// view switch (remembered per visitor)
+const view = document.getElementById('view');
+function setView(v){
+  document.body.classList.toggle('as-list', v === 'list');
+  view.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  if (v === 'list' && desktop.matches && cur < 0) show(0);
+  try { localStorage.setItem('dt-view', v); } catch {}
+}
+view.onclick = e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); };
+let saved = 'grid'; try { saved = localStorage.getItem('dt-view') || 'grid'; } catch {}
+setView(saved);
+
+// deep links: releases.html#DT034 (from home / artists)
+if (location.hash){
+  const cat = location.hash.slice(1);
+  const el = cat === h.cat ? hero : document.getElementById((document.body.classList.contains('as-list') ? 'l-' : 'g-') + cat);
+  if (el) setTimeout(() => { el.scrollIntoView({block: el === hero ? 'start' : 'center'}); el.classList.add('on');
+    const i = rest.findIndex(r => r.cat === cat); if (i > -1 && document.body.classList.contains('as-list') && desktop.matches) show(i); }, 150);
+}
 </script>
 </body>
 </html>
