@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Democratic Taste — About (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+  .head{padding:22px 0 50px}
+  .head .lead{max-width:980px;margin:34px 0 0;font-size:clamp(26px,3.4vw,50px);line-height:1.06;letter-spacing:-.025em}
+  .head .lead em{font-style:normal;color:var(--mute)}
+
+  /* covers wall: all 46, the only colour on the page */
+  .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;margin:0 0 10px}
+  .wall a{aspect-ratio:1;border-radius:3px;overflow:hidden;display:block;transition:transform .2s}
+  .wall a:hover{transform:scale(1.12);z-index:1;position:relative}
+  .wall img{width:100%;height:100%;object-fit:cover}
+
+  .pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
+  .pillars div{padding:30px 28px 34px 0;border-right:1px solid var(--line)}
+  .pillars div + div{padding-left:28px}
+  .pillars div:last-child{border-right:0}
+  .pillars .n{font-family:var(--mono);font-size:11px;color:var(--mute)}
+  .pillars h3{margin:14px 0 10px;font-size:clamp(22px,2.4vw,34px);line-height:1;text-transform:uppercase;letter-spacing:-.02em;display:flex;align-items:center;gap:12px}
+  .pillars p{margin:0;color:#a9a5ad;line-height:1.6;font-size:15px}
+
+  /* send demos */
+  .demos{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:56px;scroll-margin-top:90px}
+  .demos ul{margin:24px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+  .demos li{display:flex;gap:12px;align-items:flex-start;color:#cfcbd3;line-height:1.5}
+  .demos li .candy{margin-top:4px}
+  form{background:#111013;border:1px solid var(--line);border-radius:10px;padding:28px;display:grid;gap:16px}
+  label{display:grid;gap:7px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+  input,textarea,select{font:inherit;font-family:var(--sans);font-size:16px;text-transform:none;letter-spacing:0;color:var(--fg);background:var(--bg);border:1px solid var(--dim);border-radius:6px;padding:12px 14px}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--fg)}
+  textarea{min-height:110px;resize:vertical}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  form .listen{justify-self:start;border:0;cursor:pointer;font-family:var(--sans)}
+  .sent{display:none;font-family:var(--mono);font-size:12px;color:var(--mute)}
+
+  @media (max-width:820px){
+    .pillars{grid-template-columns:1fr}
+    .pillars div,.pillars div + div{padding:26px 0;border-right:0;border-bottom:1px solid var(--line)}
+    .demos{grid-template-columns:1fr;gap:30px}
+    .two{grid-template-columns:1fr}
+    form{padding:20px}
+  }
+</style>
+</head>
+<body>
+<div id="hdr"></div>
+<main>
+  <section class="head">
+    <div class="eyebrow">About · Tasty Tunes Factory</div>
+    <h1 class="big" style="margin-top:14px">All genres,<br>no judgement.</h1>
+    <p class="lead">Democratic Taste es un sello y estudio creativo de música electrónica, nacido en la Ciudad de México en 2020. <em>Sigue probando hasta encontrar tu próximo sabor favorito.</em></p>
+  </section>
+
+  <div class="wall" id="wall"></div>
+
+  <section class="sec">
+    <div class="pillars" id="pillars"></div>
+  </section>
+
+  <section class="sec demos" id="demos">
+    <div>
+      <div class="eyebrow">Send demos</div>
+      <h2 class="big" style="font-size:clamp(40px,6vw,88px);margin-top:14px">¿Tienes un sabor nuevo?</h2>
+      <ul id="rules"></ul>
+    </div>
+    <form id="form">
+      <div class="two">
+        <label>Nombre / alias<input required placeholder="Tu nombre artístico"></label>
+        <label>Email<input type="email" required placeholder="tu@email.com"></label>
+      </div>
+      <label>Link privado (SoundCloud, Dropbox…)<input type="url" required placeholder="https://"></label>
+      <div class="two">
+        <label>Ciudad<input placeholder="CDMX"></label>
+        <label>Sabor / género<select><option>House</option><option>Techno</option><option>Disco / Funk</option><option>Breaks</option><option>Ambient</option><option>Otro</option></select></label>
+      </div>
+      <label>Cuéntanos del track<textarea placeholder="Un par de líneas sobre ti y la música"></textarea></label>
+      <button class="listen" style="--c:#f5c542" type="submit">Enviar demo ▸</button>
+      <div class="sent" id="sent">Mockup — el formulario aún no envía nada.</div>
+    </form>
+  </section>
+</main>
+<div id="ftr"></div>
+
+<script src="releases-data.js"></script>
+<script src="common.js"></script>
+<script>
+const {R, esc, candy, artists} = DT;
+DT.mount('about.html');
+
+document.getElementById('wall').innerHTML = R.map(r =>
+  `<a href="releases.html#${r.cat}" title="${r.cat} — ${esc(r.title)} · ${esc(r.artist)}"><img src="${r.img}" alt="${esc(r.title)}" loading="lazy"></a>`).join('');
+
+const P = [
+  ['Todos los géneros', 'Un solo sello, muchos sabores. House, disco, breaks o ambient: todo se trata igual.', R[3].color],
+  ['Cada release, un artista visual', `${R.length} portadas hechas por artistas visuales — o por los mismos músicos. La portada es el caramelo.`, R[0].color],
+  ['Trampolín y patio de juegos', `${artists.length} artistas: un lugar para lanzar a los nuevos y para que los consolidados jueguen.`, R[1].color],
+];
+document.getElementById('pillars').innerHTML = P.map(([t,p,c],i) =>
+  `<div><span class="n">0${i+1}</span><h3>${candy(c)}${t}</h3><p>${p}</p></div>`).join('');
+
+document.getElementById('rules').innerHTML = [
+  'Manda un link privado — nada de archivos adjuntos.',
+  'Música original, sin publicar.',
+  'Escuchamos todo; respondemos si hay match.',
+].map((t,i) => `<li>${candy(R[i+4].color)}<span>${t}</span></li>`).join('');
+
+document.getElementById('form').addEventListener('submit', e => { e.preventDefault(); document.getElementById('sent').style.display = 'block'; });
+</script>
+</body>
+</html>
