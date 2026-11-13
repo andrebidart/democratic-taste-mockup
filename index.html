@@ -83,6 +83,18 @@
     #panel{top:auto;left:0;right:0;bottom:0;width:auto;max-height:84vh;border-radius:26px 26px 0 0;transform:translateY(105%)}
     #proto{display:none}
   }
+  /* NOIR: black & white interface, colour only comes from the candy / release */
+  html,body{background:#f1eee9;color:#0f0f12}
+  .lang button.on{background:#0f0f12}
+  #nav a.demo,.logo .mark,#burger,.pill,.player button,#toast,#proto{background:#0f0f12}
+  .cta{background:#0f0f12} .cta:hover{background:#2c2b31}
+  .credits a{color:#0f0f12;text-decoration:underline;text-underline-offset:3px}
+  .chip{background:#ebe7e0} .player{background:#ebe7e0}
+  .bars span{background:#cfcac1} .player.playing .bars span{background:var(--rel,#0f0f12)}
+  /* keep the tagline clear of the open panel: slide it into the free space on desktop, hide it under the sheet on phones */
+  #bottom{transition:right .5s cubic-bezier(.2,.9,.25,1.08), opacity .3s}
+  body.panel-open #bottom{right:436px}
+  @media (max-width:760px){ body.panel-open #bottom{right:0;opacity:0} }
   #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:18px;padding:40px;text-align:center}
 </style>
 <script type="importmap">
@@ -157,7 +169,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.appendChild(renderer.domElement);
 
-const BG = 0xece4f0;
+const BG = 0xf1eee9;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(BG);
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -174,7 +186,7 @@ controls.target.copy(TARGET); controls.enableDamping = true; controls.enablePan 
 controls.minDistance = 14; controls.maxDistance = 45; controls.maxPolarAngle = Math.PI*0.47;
 controls.enabled = false;
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0xd9c6e6, 1.0));
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d4cc, 1.0));
 const sun = new THREE.DirectionalLight(0xffffff, 2.4);
 sun.position.set(9, 18, 12); sun.target.position.set(1, 0, 0);
 sun.castShadow = true; sun.shadow.mapSize.set(1536, 1536);
@@ -217,11 +229,22 @@ const knobs = [];
 // little screen
 const scrCanvas = document.createElement('canvas'); scrCanvas.width=1024; scrCanvas.height=160;
 const scrCtx = scrCanvas.getContext('2d'); const scrTex = new THREE.CanvasTexture(scrCanvas); scrTex.colorSpace = THREE.SRGBColorSpace;
-function drawScreen(txt){
-  scrCtx.fillStyle='#2a2233'; scrCtx.fillRect(0,0,1024,160);
-  scrCtx.fillStyle='#6fd3a0'; scrCtx.font='600 54px Fredoka, sans-serif'; scrCtx.textBaseline='middle';
-  scrCtx.fillText(txt, 40, 84); scrTex.needsUpdate = true;
+// short text sits still; long titles scroll like a ticker
+const SCR = { txt:'', w:0, x:0, scroll:false, GAP:'     ·     ' };
+function paintScreen(){
+  scrCtx.fillStyle='#0f0f12'; scrCtx.fillRect(0,0,1024,160);
+  scrCtx.fillStyle='#f3efe8'; scrCtx.font='600 54px Fredoka, sans-serif'; scrCtx.textBaseline='middle';
+  if (!SCR.scroll) scrCtx.fillText(SCR.txt, 40, 84);
+  else { const s = SCR.txt + SCR.GAP; scrCtx.fillText(s, 40 - SCR.x, 84); scrCtx.fillText(s, 40 - SCR.x + SCR.w, 84); }
+  scrTex.needsUpdate = true;
 }
+function drawScreen(txt){
+  scrCtx.font='600 54px Fredoka, sans-serif';
+  SCR.txt = txt; SCR.x = 0; SCR.scroll = scrCtx.measureText(txt).width > 1024 - 80;
+  SCR.w = scrCtx.measureText(txt + SCR.GAP).width;
+  paintScreen();
+}
+function scrollScreen(dt){ if (!SCR.scroll) return; SCR.x = (SCR.x + dt*170) % SCR.w; paintScreen(); }
 drawScreen('NOW COOKING ▸ warming up…');
 mesh(rbox(3.9,.82,.2,.12), mat(PAL.ink,.5), machine).position.set(0,3.25,2.0);
 const screen = new THREE.Mesh(new THREE.PlaneGeometry(3.7,.58), new THREE.MeshBasicMaterial({ map:scrTex, toneMapped:false }));
@@ -385,6 +408,39 @@ const zzz = spr(zzzTex,.75); zzz.position.set(.7,.75,.2);
 const anger = spr(angerTex,.45); anger.position.set(.55,.62,.35);
 const spark = spr(sparkTex,.4); spark.position.set(-.6,.7,.3);
 
+/* ---------- NOIR: the whole factory goes black ink; only candy keeps its colour ---------- */
+const NOIR = { base:0x1d1c21, deep:0x0f0f12, light:0x34323b, paper:0xf3efe8 };
+const noirFor = hex => {
+  if (hex === 0xffffff) return null;                                  // eye whites, steam, glass stay as they are
+  if (hex === KID.skin) return NOIR.paper;                            // the kid's skin reads as the paper of an ink drawing
+  if ([PAL.ink, KID.hair, KID.suit, 0x8a1f3d].includes(hex)) return NOIR.deep;
+  if ([PAL.white, PAL.cream, KID.tote, KID.suit2, KID.pants2].includes(hex)) return NOIR.light;
+  return NOIR.base;
+};
+const candyMeshes = new Set();
+for (const g of [hop, tote]) g.traverse(o=>{ if (o.isMesh && o.geometry.type==='SphereGeometry') candyMeshes.add(o); });
+scene.traverse(o=>{
+  if (!o.isMesh || candyMeshes.has(o) || o === screen || !o.material.isMeshStandardMaterial || o.material.isMeshPhysicalMaterial) return;
+  if (o.material.map) return;                                         // textured bits (belt, DT patches) are redrawn below
+  const nc = noirFor(o.material.color.getHex()); if (nc === null) return;
+  o.material = o.material.clone(); o.material.color.setHex(nc);
+  o.material.roughness = Math.min(o.material.roughness, .38);         // glossy black vinyl, so the shapes catch highlights
+});
+// belt: dark rubber with faint ribs
+sc.fillStyle='#232228'; sc.fillRect(0,0,64,8); sc.fillStyle='#34323b'; sc.fillRect(0,0,10,8); beltTex.needsUpdate = true;
+// DT patches: white on black
+dx2.fillStyle='#f3efe8'; dx2.beginPath(); dx2.arc(64,64,60,0,Math.PI*2); dx2.fill();
+dx2.fillStyle='#0f0f12'; dx2.font='700 62px Fredoka, sans-serif'; dx2.fillText('DT',64,68); dtTex2.needsUpdate = true;
+// mood symbols in black & white
+const redraw = (tex, draw) => { const c = tex.image, x = c.getContext('2d'); x.clearRect(0,0,128,128); draw(x); tex.needsUpdate = true; };
+redraw(heartTex, x=>{ x.fillStyle='#ffffff'; x.strokeStyle='#0f0f12'; x.lineWidth=9; x.beginPath(); x.moveTo(64,110);
+  x.bezierCurveTo(8,70,14,20,44,20); x.bezierCurveTo(56,20,64,30,64,40); x.bezierCurveTo(64,30,72,20,84,20); x.bezierCurveTo(114,20,120,70,64,110); x.closePath(); x.fill(); x.stroke(); });
+redraw(zzzTex, x=>{ x.fillStyle='#0f0f12'; x.font='700 40px Fredoka, sans-serif'; x.fillText('z',10,112); x.font='700 54px Fredoka, sans-serif'; x.fillText('z',40,80); x.font='700 68px Fredoka, sans-serif'; x.fillText('Z',72,54); });
+redraw(angerTex, x=>{ x.strokeStyle='#0f0f12'; x.lineWidth=15; x.lineCap='round';
+  for (let i=0;i<4;i++){ x.save(); x.translate(64,64); x.rotate(i*Math.PI/2); x.beginPath(); x.moveTo(14,-44); x.quadraticCurveTo(14,-14,44,-14); x.stroke(); x.restore(); } });
+redraw(sparkTex, x=>{ x.fillStyle='#ffffff'; x.strokeStyle='#0f0f12'; x.lineWidth=6; x.beginPath();
+  for (let i=0;i<8;i++){ const a=i*Math.PI/4, r=i%2?16:56; x.lineTo(64+Math.cos(a)*r, 64+Math.sin(a)*r); } x.closePath(); x.fill(); x.stroke(); });
+
 /* ---------- candies ---------- */
 const HIT_GEO = new THREE.SphereGeometry(.85,10,8), HIT_MAT = new THREE.MeshBasicMaterial({ visible:false });
 const candies = []; const pile = [];
@@ -495,6 +551,7 @@ function fillPanel(){
      radial-gradient(circle at 60% 85%, rgba(42,34,51,.25) 0 30%, transparent 31%),
      linear-gradient(150deg, ${col}, #2a2233 120%)`;
   $('pCoverT').textContent = title; $('pCoverN').textContent = `${cat} · ${artist}`;
+  $('panel').style.setProperty('--rel', col);
   $('pCat').textContent = cat; $('pDot').style.background = col; $('pFlav').textContent = `${L.flavour}: ${L.flav[shape]}`;
   $('pTitle').textContent = title; $('pArtist').textContent = artist; $('pMusic').textContent = artist;
   $('pArt').innerHTML = art.split(' & ').map(h=>`<a href="https://instagram.com/${h.slice(1)}" target="_blank" rel="noopener">${h}</a>`).join(' & ');
@@ -503,8 +560,9 @@ function fillPanel(){
 function openPanel(i){
   panelIdx = (i + RELEASES.length) % RELEASES.length; setPlaying(false); playSec = 0; $('pTime').textContent = '0:00 / 3:42';
   fillPanel(); $('panel').classList.add('open'); $('panel').setAttribute('aria-hidden','false'); $('panel').scrollTop = 0;
+  document.body.classList.add('panel-open');
 }
-function closePanel(){ panelIdx = -1; setPlaying(false); $('panel').classList.remove('open'); $('panel').setAttribute('aria-hidden','true'); }
+function closePanel(){ panelIdx = -1; setPlaying(false); $('panel').classList.remove('open'); $('panel').setAttribute('aria-hidden','true'); document.body.classList.remove('panel-open'); }
 $('pClose').addEventListener('click', closePanel);
 $('pPrev').addEventListener('click', ()=>openPanel(panelIdx - 1));
 $('pNext').addEventListener('click', ()=>openPanel(panelIdx + 1));
@@ -593,6 +651,7 @@ function tick(){
   const thump = Math.pow(1-bp,4);
   woofer.scale.setScalar(1+.12*thump); tweet.scale.setScalar(1+.08*Math.pow(1-((beat*2)%1),4));
   hop.rotation.y += dt*.3;
+  scrollScreen(dt);
 
   // steam
   puffT += dt;
