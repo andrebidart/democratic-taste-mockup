@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="dt-version" content="20261113143214">
+<meta name="dt-version" content="20261114140223">
 <script>/* always show the newest published version (GitHub Pages caches pages ~10 min) */
-(function(){var V="20261113143214";if(V.indexOf("__")===0)return;
+(function(){var V="20261114140223";if(V.indexOf("__")===0)return;
 fetch("../version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){
 if(!j||!j.v||j.v===V)return;var k="dt-r-"+j.v+location.pathname;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(e){}
 var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href)}).catch(function(){})})();</script>
@@ -13,11 +13,20 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
 <title>Democratic Taste — About (minimal mockup)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="common.css?v=20261113143214">
+<link rel="stylesheet" href="common.css?v=20261114140223">
 <style>
   .txt{max-width:680px;padding-top:40px}
   .txt p{font-size:clamp(18px,2vw,22px);line-height:1.5;color:var(--mute);margin:0 0 1.1em}
   .txt p b{font-weight:400;color:var(--fg)}
+  .nums{display:flex;gap:clamp(28px,5vw,64px);margin:40px 0 0;flex-wrap:wrap}
+  .nums b{display:block;font-size:clamp(30px,3.4vw,44px);font-weight:500;color:var(--fg);letter-spacing:0;text-transform:none}
+  .rows{border-top:1px solid var(--line);max-width:980px}
+  .rows div{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(0,1.4fr);gap:20px;padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  .rows h3{font-size:18px}
+  .rows p{margin:0;color:var(--mute);line-height:1.55}
+  .rules{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px;color:var(--mute);line-height:1.5;max-width:360px}
+  .rules li::before{content:"— "}
+  @media (max-width:760px){ .rows div{grid-template-columns:36px minmax(0,1fr)} .rows p{grid-column:2} }
   .demos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(24px,5vw,72px);scroll-margin-top:90px}
   .demos p{color:var(--mute);line-height:1.6;max-width:360px;margin:0}
   form{display:grid;gap:22px}
@@ -38,10 +47,22 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
     <p><b>Democratic Taste es un sello y estudio creativo de música electrónica, nacido en la Ciudad de México en 2020.</b></p>
     <p>Todos los géneros, sin juicios. Cada release lleva el arte de un artista visual — la portada es el caramelo.</p>
     <p>Un trampolín para artistas nuevos y un patio de juegos para los consolidados.</p>
+    <p class="mono mute" style="font-size:11px;margin-top:2em">Tasty Tunes Factory · Custom-wrapped electronic music — a different flavor for every palate.</p>
+    <div class="nums mono mute"><div><b id="sRel"></b>releases</div><div><b id="sArt"></b>artistas</div><div><b>2020</b>desde</div></div>
   </div>
 
+  <section class="sec">
+    <h2 class="mono mute" style="margin-bottom:24px">La receta</h2>
+    <div class="rows">
+      <div><span class="mono mute">01</span><h3>Todos los géneros</h3><p>Un solo sello, muchos sabores. House, disco, breaks o ambient: todo se trata igual.</p></div>
+      <div><span class="mono mute">02</span><h3>Ingredientes y sabor</h3><p>Los ingredientes son los artistas y sus instrumentos; el sabor, las rolas.</p></div>
+      <div><span class="mono mute">03</span><h3>Custom-wrapped</h3><p id="pWrap"></p></div>
+      <div><span class="mono mute">04</span><h3>Trampolín y patio de juegos</h3><p id="pArt"></p></div>
+    </div>
+  </section>
+
   <section class="sec demos" id="demos">
-    <div><h2 class="mono" style="margin-bottom:16px">Send demos</h2><p>Un link privado a música original sin publicar. Escuchamos todo.</p></div>
+    <div><h2 class="mono" style="margin-bottom:16px">Send demos</h2><p>¿Tienes un sabor nuevo? Mándalo.</p><ul class="rules"><li>Un link privado — nada de archivos adjuntos.</li><li>Música original, sin publicar.</li><li>Escuchamos todo; respondemos si hay match.</li></ul></div>
     <form id="form">
       <label class="mono mute">Nombre / alias<input required></label>
       <label class="mono mute">Email<input type="email" required></label>
@@ -53,10 +74,15 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
   </section>
 </main>
 <div id="ftr"></div>
-<script src="releases-data.js?v=20261113143214"></script>
-<script src="common.js?v=20261113143214"></script>
+<script src="releases-data.js?v=20261114140223"></script>
+<script src="common.js?v=20261114140223"></script>
 <script>
 DT.mount('about.html');
+const {R, artists} = DT;
+document.getElementById('sRel').textContent = R.length;
+document.getElementById('sArt').textContent = artists.length;
+document.getElementById('pWrap').textContent = `${R.length} portadas, cada una hecha por un artista visual — o por los mismos músicos. La portada es la envoltura del caramelo.`;
+document.getElementById('pArt').textContent = `${artists.length} artistas: un lugar para lanzar a los nuevos y para que los consolidados jueguen.`;
 document.getElementById('form').addEventListener('submit', e => { e.preventDefault(); document.getElementById('sent').style.display = 'block'; });
 </script>
 </body>

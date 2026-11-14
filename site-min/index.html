@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="dt-version" content="20261113143214">
+<meta name="dt-version" content="20261114140223">
 <script>/* always show the newest published version (GitHub Pages caches pages ~10 min) */
-(function(){var V="20261113143214";if(V.indexOf("__")===0)return;
+(function(){var V="20261114140223";if(V.indexOf("__")===0)return;
 fetch("../version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){
 if(!j||!j.v||j.v===V)return;var k="dt-r-"+j.v+location.pathname;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(e){}
 var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href)}).catch(function(){})})();</script>
@@ -13,26 +13,57 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
 <title>Democratic Taste — Home (minimal mockup)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="common.css?v=20261113143214">
+<link rel="stylesheet" href="common.css?v=20261114140223">
 <style>
-  .hero{min-height:calc(100vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;padding:20px 0 40px;text-align:center}
+  .hero{min-height:calc(100vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;padding:20px 0 40px;text-align:center}
   .hero img{width:min(560px,82%);height:auto;filter:drop-shadow(0 30px 50px rgba(0,0,0,.6))}
-  .hero p{margin:0;font-size:15px;color:var(--mute)}
+  .hero .kicker{margin-bottom:14px}
+  .hero p{margin:0 auto;max-width:440px;font-size:17px;line-height:1.45;color:var(--mute)}
   .hero p b{font-weight:500;color:var(--fg)}
-  .hero .links{display:flex;gap:28px;justify-content:center;margin-top:18px}
+  .hero .links{display:flex;gap:28px;justify-content:center;margin-top:24px}
 
-  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2vw,28px)}
+  /* latest release */
+  .latest{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:end}
+  .latest img{width:100%;aspect-ratio:1;object-fit:cover}
+  .latest h3{font-size:clamp(28px,3.4vw,44px);line-height:1.05;margin:14px 0 6px}
+  .latest .artist{color:var(--mute);font-size:17px}
+  .facts{margin:26px 0 30px;display:grid;grid-template-columns:auto 1fr;gap:8px 24px;max-width:420px}
+  .facts dt{color:var(--mute)}
+  .facts dd{margin:0}
+
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:44px clamp(14px,2vw,28px)}
   .grid a{display:block}
   .grid img{width:100%;aspect-ratio:1;object-fit:cover;transition:opacity .25s}
   .grid a:hover img{opacity:.85}
   .grid .cap{margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
   .grid .t{font-size:14px}
   .grid .a{font-size:13px;color:var(--mute);margin-top:2px}
+  .grid .w{margin-top:6px;font-size:10px}
 
-  .about{max-width:620px;font-size:clamp(18px,2vw,22px);line-height:1.45;color:var(--mute)}
-  .about b{font-weight:400;color:var(--fg)}
+  /* roster: just names */
+  .roster{font-size:clamp(18px,2vw,24px);line-height:1.55;color:var(--mute);max-width:1000px}
+  .roster a{transition:color .2s;white-space:nowrap}
+  .roster a:hover{color:var(--fg)}
+  .roster .r{white-space:nowrap}
+  .roster .sep{opacity:.35;margin:0 .1em 0 .45em}
+  .roster .r:last-child .sep{display:none}
 
-  @media (max-width:760px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} .hero{min-height:auto;padding:60px 0 20px} }
+  /* about + numbers */
+  .about{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(28px,6vw,96px);align-items:start}
+  .about p{margin:0 0 1em;font-size:clamp(18px,2vw,22px);line-height:1.45;color:var(--mute)}
+  .about p b{font-weight:400;color:var(--fg)}
+  .nums{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:8px 44px;margin:10px 0 36px}
+  .nums b{display:block;font-size:clamp(30px,3.4vw,44px);font-weight:500;color:var(--fg)}
+  .recipe{border-top:1px solid var(--line)}
+  .recipe div{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);line-height:1.45}
+  .recipe .mono{padding-top:4px}
+  .about .links{display:flex;gap:28px;margin-top:30px}
+
+  @media (max-width:760px){
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 14px}
+    .hero{min-height:auto;padding:60px 0 20px}
+    .latest,.about{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -41,32 +72,71 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
   <section class="hero">
     <img src="img/logo-3d.png" alt="Democratic Taste">
     <div>
-      <p><b>All genres, no judgement.</b> Tasty Tunes Factory — CDMX.</p>
+      <div class="mono mute kicker">Tasty Tunes Factory · CDMX · desde 2020</div>
+      <p><b>Custom-wrapped electronic music</b> — a different flavor for every palate.</p>
       <div class="links"><a class="link" href="releases.html">Releases →</a><a class="link" href="../">Fábrica →</a></div>
     </div>
   </section>
 
+  <section class="sec" id="latest"></section>
+
   <section class="sec">
-    <div class="sec-head"><h2 class="mono">Reciente</h2><a class="mono mute" href="releases.html">Ver todo →</a></div>
+    <div class="sec-head"><h2 class="mono">Reciente</h2><a class="mono mute" href="releases.html">Todo el catálogo →</a></div>
     <div class="grid" id="grid"></div>
   </section>
 
   <section class="sec">
-    <p class="about"><b>Sello y estudio creativo de música electrónica en la Ciudad de México.</b> Cada release, un artista visual. Sigue probando hasta encontrar tu próximo sabor favorito.</p>
+    <div class="sec-head"><h2 class="mono">Roster <span class="mute" id="nArt"></span></h2><a class="mono mute" href="artists.html">Artists →</a></div>
+    <div class="roster" id="roster"></div>
+  </section>
+
+  <section class="sec about">
+    <div>
+      <h2 class="mono mute" style="margin-bottom:24px">Sobre el sello</h2>
+      <p><b>Sello y estudio creativo de música electrónica en la Ciudad de México.</b> All genres, no judgement — sigue probando hasta encontrar tu próximo sabor favorito.</p>
+      <p>Un trampolín para artistas nuevos y un patio de juegos para los consolidados.</p>
+      <div class="links"><a class="link" href="about.html">Más sobre DT →</a><a class="link" href="about.html#demos">Send demos →</a></div>
+    </div>
+    <div>
+      <div class="nums mono mute"><div><b id="sRel"></b>releases</div><div><b id="sArt"></b>artistas</div><div><b>2020</b>desde</div></div>
+      <div class="recipe">
+        <div><span class="mono mute">Ingredientes</span><span>Los artistas y sus instrumentos.</span></div>
+        <div><span class="mono mute">Sabor</span><span>Las rolas.</span></div>
+        <div><span class="mono mute">Wrap</span><span>Cada portada, hecha por un artista visual.</span></div>
+      </div>
+    </div>
   </section>
 </main>
 <div id="ftr"></div>
-<script src="releases-data.js?v=20261113143214"></script>
-<script src="common.js?v=20261113143214"></script>
+<script src="releases-data.js?v=20261114140223"></script>
+<script src="common.js?v=20261114140223"></script>
 <script>
-const {R, esc, candy} = DT;
+const {R, esc, candy, artists, slug} = DT;
 DT.mount('index.html');
-document.getElementById('grid').innerHTML = R.slice(0,4).map((r,i) => `
+document.getElementById('sRel').textContent = R.length;
+document.getElementById('sArt').textContent = artists.length;
+document.getElementById('nArt').textContent = artists.length;
+
+// newest release, with its credits
+const h = R[0];
+document.getElementById('latest').innerHTML = `<div class="latest">
+  <a href="releases.html#${h.cat}"><img src="${h.img}" alt="${esc(h.title)} — ${esc(h.artist)}"></a>
+  <div><span class="mono mute">Nuevo · ${h.cat}</span> ${candy(h.color)}
+    <h3>${esc(h.title)}</h3><div class="artist">${esc(h.artist)}</div>
+    <dl class="facts"><dt class="mono">Wrap</dt><dd>${esc(h.art)}</dd><dt class="mono">Cat.</dt><dd>${h.cat}</dd></dl>
+    <a class="link" style="--c:${h.color}" href="${h.link}" target="_blank" rel="noopener">Escuchar →</a></div></div>`;
+
+// the next 8
+document.getElementById('grid').innerHTML = R.slice(1,9).map(r => `
   <a href="releases.html#${r.cat}">
-    <img src="${r.img}" alt="${esc(r.title)} — ${esc(r.artist)}">
-    <div class="cap"><span class="mono mute">${r.cat}${i===0?' · nuevo':''}</span>${candy(r.color)}</div>
+    <img src="${r.img}" alt="${esc(r.title)} — ${esc(r.artist)}" loading="lazy">
+    <div class="cap"><span class="mono mute">${r.cat}</span>${candy(r.color)}</div>
     <div class="t">${esc(r.title)}</div><div class="a">${esc(r.artist)}</div>
+    <div class="w mono mute">Wrap ${esc(r.art)}</div>
   </a>`).join('');
+
+// roster: plain names, linked
+document.getElementById('roster').innerHTML = artists.map(a => `<span class="r"><a href="artists.html#${slug(a)}">${esc(a)}</a><span class="sep">/</span></span>`).join(' ');
 </script>
 </body>
 </html>

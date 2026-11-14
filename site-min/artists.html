@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="dt-version" content="20261113143214">
+<meta name="dt-version" content="20261114140223">
 <script>/* always show the newest published version (GitHub Pages caches pages ~10 min) */
-(function(){var V="20261113143214";if(V.indexOf("__")===0)return;
+(function(){var V="20261114140223";if(V.indexOf("__")===0)return;
 fetch("../version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){
 if(!j||!j.v||j.v===V)return;var k="dt-r-"+j.v+location.pathname;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(e){}
 var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href)}).catch(function(){})})();</script>
@@ -13,35 +13,40 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
 <title>Democratic Taste — Artists (minimal mockup)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="common.css?v=20261113143214">
+<link rel="stylesheet" href="common.css?v=20261114140223">
 <style>
   .cols{columns:3 260px;column-gap:clamp(24px,5vw,72px);padding-top:40px}
   .art{break-inside:avoid;padding:12px 0;border-bottom:1px solid var(--line);scroll-margin-top:90px}
   .art .n{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:16px;color:var(--mute);transition:color .2s;cursor:default}
   .art .n sup{font-family:var(--mono);font-size:10px}
-  .art .strip{display:flex;gap:6px;max-height:0;overflow:hidden;transition:max-height .3s,margin .3s}
+  .intro{max-width:520px;color:var(--mute);line-height:1.55;margin:18px 0 0}
+  .art .strip{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+  .art .strip a{opacity:.55;transition:opacity .2s}
+  .art:hover .strip a,.art.on .strip a{opacity:1}
   .art .strip img{width:48px;height:48px;object-fit:cover}
   .art:hover .n,.art.on .n{color:var(--fg)}
-  .art:hover .strip,.art.on .strip{max-height:60px;margin-top:10px}
-  @media (hover:none){ .art .n{color:var(--fg)} .art .strip{max-height:60px;margin-top:10px;overflow-x:auto} }
+  .art .yrs{font-size:10px;margin-top:4px}
+  @media (hover:none){ .art .n{color:var(--fg)} .art .strip a{opacity:1} }
 </style>
 </head>
 <body>
 <div id="hdr"></div>
 <main>
   <div class="sec-head" style="padding-top:40px;margin:0"><h1 class="mono">Artists</h1><span class="mono mute" id="count"></span></div>
+  <p class="intro">Los ingredientes de la fábrica. Un trampolín para artistas nuevos y un patio de juegos para los consolidados.</p>
   <div class="cols" id="list"></div>
 </main>
 <div id="ftr"></div>
-<script src="releases-data.js?v=20261113143214"></script>
-<script src="common.js?v=20261113143214"></script>
+<script src="releases-data.js?v=20261114140223"></script>
+<script src="common.js?v=20261114140223"></script>
 <script>
 const {R, esc, artists, byArtist, slug} = DT;
 DT.mount('artists.html');
 document.getElementById('count').textContent = artists.length;
 document.getElementById('list').innerHTML = artists.map(a => { const rel = byArtist[a]; return `
   <div class="art" id="${slug(a)}">
-    <div class="n"><span>${esc(a)}</span><sup>${rel.length > 1 ? rel.length : ''}</sup></div>
+    <div class="n"><span>${esc(a)}</span><sup>${rel.length} release${rel.length > 1 ? 's' : ''}</sup></div>
+    <div class="yrs mono mute">${rel.map(i => R[i].cat).join(' · ')}</div>
     <div class="strip">${rel.map(i => `<a href="releases.html#${R[i].cat}" title="${R[i].cat} — ${esc(R[i].title)}"><img src="${R[i].img}" alt="${esc(R[i].title)}" loading="lazy"></a>`).join('')}</div>
   </div>`; }).join('');
 if (location.hash){ const el = document.getElementById(location.hash.slice(1)); if (el){ el.classList.add('on'); setTimeout(() => el.scrollIntoView({block:'center'}), 150); } }
