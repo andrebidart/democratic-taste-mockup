@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="dt-version" content="20261114141611">
+<meta name="dt-version" content="20261114142213">
 <script>/* always show the newest published version (GitHub Pages caches pages ~10 min) */
-(function(){var V="20261114141611";if(V.indexOf("__")===0)return;
+(function(){var V="20261114142213";if(V.indexOf("__")===0)return;
 fetch("../version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){
 if(!j||!j.v||j.v===V)return;var k="dt-r-"+j.v+location.pathname;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(e){}
 var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href)}).catch(function(){})})();</script>
@@ -13,7 +13,7 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
 <title>Democratic Taste — Home (minimal mockup)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="common.css?v=20261114141611">
+<link rel="stylesheet" href="common.css?v=20261114142213">
 <style>
   .hero{min-height:calc(100vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;padding:20px 0 40px;text-align:center}
   .hero img{width:min(560px,82%);height:auto;filter:drop-shadow(0 30px 50px rgba(0,0,0,.6))}
@@ -87,7 +87,6 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
 
   <section class="sec about" style="padding-top:clamp(40px,6vw,80px)">
     <div>
-      <h2 class="mono mute" style="margin-bottom:24px">Sobre el sello</h2>
       <p><b>Sello y estudio creativo de música electrónica en la Ciudad de México.</b> All genres, no judgement — sigue probando hasta encontrar tu próximo sabor favorito.</p>
       <p>Un trampolín para artistas nuevos y un patio de juegos para los consolidados.</p>
       <div class="links"><a class="link" href="about.html">Más sobre DT →</a><a class="link" href="about.html#demos">Send demos →</a></div>
@@ -103,20 +102,18 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
   </section>
 
   <section class="sec">
-    <div class="sec-head"><h2 class="mono">Roster <span class="mute" id="nArt"></span></h2><a class="mono mute" href="artists.html">Artists →</a></div>
     <div class="roster" id="roster"></div>
   </section>
 
 </main>
 <div id="ftr"></div>
-<script src="releases-data.js?v=20261114141611"></script>
-<script src="common.js?v=20261114141611"></script>
+<script src="releases-data.js?v=20261114142213"></script>
+<script src="common.js?v=20261114142213"></script>
 <script>
 const {R, esc, candy, artists, slug} = DT;
 DT.mount('index.html');
 document.getElementById('sRel').textContent = R.length;
 document.getElementById('sArt').textContent = artists.length;
-document.getElementById('nArt').textContent = artists.length;
 
 // newest release: one line under the logo (the full catalogue lives on Releases)
 const h = R[0], nw = document.getElementById('newest');

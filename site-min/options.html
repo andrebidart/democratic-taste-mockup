@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="dt-version" content="20261114142213">
+<script>/* always show the newest published version (GitHub Pages caches pages ~10 min) */
+(function(){var V="20261114142213";if(V.indexOf("__")===0)return;
+fetch("../version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){
+if(!j||!j.v||j.v===V)return;var k="dt-r-"+j.v+location.pathname;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(e){}
+var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href)}).catch(function(){})})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Democratic Taste — header + footer options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css?v=20261114142213">
+<style>
+  body{padding-bottom:120px}
+  .intro{padding:40px var(--pad) 10px;max-width:760px}
+  .intro p{color:var(--mute);line-height:1.55}
+  .group{padding:70px var(--pad) 0}
+  .group > h2{font-size:clamp(28px,3vw,40px);margin-bottom:6px}
+  .opt{margin-top:46px}
+  .opt-label{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:12px}
+  .opt-label b{font-family:var(--mono);font-size:12px;letter-spacing:.08em;background:var(--fg);color:var(--bg);padding:3px 8px;font-weight:400}
+  .opt-label span{color:var(--mute);font-size:14px}
+  .frame{border:1px dashed #2c2a30;position:relative;overflow:hidden}
+  .frame .ghost{padding:28px var(--pad) 34px;color:#2f2d33;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+  .candy{width:18px;height:9px}
+
+  /* ---------- shared bits ---------- */
+  .nav-a{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);transition:color .2s}
+  .nav-a:hover,.nav-a.on{color:var(--fg)}
+
+  /* H0 current */
+  .h0{display:flex;align-items:center;gap:28px;padding:22px var(--pad)}
+  .h0 .mark{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-right:auto}
+  .h0 nav{display:flex;gap:26px}
+
+  /* HA: logo mark + candy on active page */
+  .ha{display:flex;align-items:center;gap:28px;padding:16px var(--pad)}
+  .ha .mark{display:flex;align-items:center;gap:12px;margin-right:auto}
+  .ha .mark img{height:38px;width:auto}
+  .ha .mark span{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  .ha nav{display:flex;gap:26px;align-items:center}
+  .ha nav a{display:inline-flex;align-items:center;gap:8px}
+  .ha nav a .candy{opacity:0;transform:rotate(-20deg) scale(.6);transition:opacity .25s,transform .3s;width:16px}
+  .ha nav a.on .candy,.ha nav a:hover .candy{opacity:1;transform:none}
+
+  /* HB: informed — counts + newest release on the right */
+  .hb{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:36px;padding:18px var(--pad);border-bottom:1px solid var(--line)}
+  .hb .mark{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;line-height:1.5}
+  .hb .mark small{display:block;color:var(--mute);font-size:10px;letter-spacing:.1em}
+  .hb nav{display:flex;gap:30px;justify-content:center}
+  .hb nav a{font-size:15px;color:var(--mute);transition:color .2s}
+  .hb nav a sup{font-family:var(--mono);font-size:9px;margin-left:3px;color:#4a474e}
+  .hb nav a:hover,.hb nav a.on{color:var(--fg)}
+  .hb .new{display:flex;align-items:center;gap:10px;font-size:13px}
+  .hb .new img{width:30px;height:30px;object-fit:cover}
+  .hb .new .mono{font-size:10px}
+
+  /* HC: centred wordmark, nav split either side */
+  .hc{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:20px var(--pad)}
+  .hc nav{display:flex;gap:26px}
+  .hc nav.r{justify-content:flex-end}
+  .hc .mark{display:flex;align-items:center;gap:12px;font-size:clamp(18px,1.8vw,24px);font-weight:500;letter-spacing:-.01em;text-transform:lowercase}
+  .hc .mark .candy{width:30px;height:15px;transition:transform .4s}
+  .hc .mark:hover .candy{transform:rotate(360deg)}
+
+  /* F0 current = the real footer, rendered by common.js */
+
+  /* FA: candy box — one candy per release */
+  .fa{padding:clamp(60px,8vw,110px) var(--pad) 32px}
+  .fa .top{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+  .fa .top h3{font-size:clamp(22px,2.6vw,34px);font-weight:500;text-transform:uppercase;letter-spacing:-.02em}
+  .fa .box{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:18px 10px;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .fa .box a{display:grid;place-items:center;position:relative}
+  .fa .box .candy{width:34px;height:17px;transition:transform .3s}
+  .fa .box a:hover .candy{transform:rotate(-20deg) scale(1.35)}
+  .fa .box a::after{content:attr(data-t);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--fg);color:var(--bg);padding:3px 7px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:2}
+  .fa .box a:hover::after{opacity:1}
+  .fa .bottom{display:flex;justify-content:space-between;gap:20px 40px;flex-wrap:wrap;margin-top:28px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .fa .bottom nav{display:flex;gap:20px;flex-wrap:wrap}
+  .fa .bottom a:hover{color:var(--fg)}
+
+  /* FB: the wrapper label — "nutrition facts" for the label */
+  .fb{padding:clamp(60px,8vw,110px) var(--pad) 32px;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,420px);gap:48px 64px;align-items:end}
+  .fb .label{border:1px solid var(--fg);padding:16px 18px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+  .fb .label h3{font-family:var(--sans);font-size:26px;font-weight:500;letter-spacing:-.02em;text-transform:none;line-height:1;padding-bottom:10px;border-bottom:6px solid var(--fg)}
+  .fb .label .sub{padding:8px 0;border-bottom:1px solid var(--fg);color:var(--mute)}
+  .fb .label dl{margin:0}
+  .fb .label dl div{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid #3a383e}
+  .fb .label dl div:last-child{border-bottom:3px solid var(--fg)}
+  .fb .label dt{color:var(--mute)}
+  .fb .label dd{margin:0;text-align:right}
+  .fb .label .may{padding-top:9px;color:var(--mute);line-height:1.6;text-transform:none;letter-spacing:0;font-size:12px}
+  .fb .label .lot{display:flex;justify-content:space-between;align-items:center;padding-top:10px}
+  .fb .cols{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:24px clamp(32px,5vw,72px)}
+  .fb .cols div{display:flex;flex-direction:column;gap:9px}
+  .fb .cols em{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+  .fb .cols a{color:#bdb9c1;font-size:14px}
+  .fb .cols a:hover{color:var(--fg)}
+  .fb .left p{font-size:clamp(22px,2.6vw,34px);line-height:1.05;letter-spacing:-.02em;text-transform:uppercase;font-weight:500;margin:0 0 44px}
+  .fb .base{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+
+  /* FC: flavour of the day as the feature */
+  .fc{padding:clamp(60px,8vw,110px) var(--pad) 32px}
+  .fc .feat{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:clamp(20px,3vw,40px);align-items:center;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .fc .feat img{width:clamp(90px,10vw,140px);aspect-ratio:1;object-fit:cover;transition:transform .4s}
+  .fc .feat .mono{display:block;margin-bottom:10px}
+  .fc .feat .t{font-size:clamp(24px,3vw,42px);font-weight:500;letter-spacing:-.02em;line-height:1}
+  .fc .feat .a{color:var(--mute);margin-top:6px}
+  .fc .feat .acts{display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+  .fc .shuffle{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .fc .shuffle:hover{color:var(--fg)}
+  .fc .shuffle .candy{width:30px;height:15px;transition:transform .5s}
+  .fc .shuffle:hover .candy{transform:rotate(-20deg) scale(1.15)}
+  .fc .row2{display:flex;justify-content:space-between;align-items:flex-end;gap:30px 60px;flex-wrap:wrap;margin:40px 0 36px}
+  .fc .row2 p{margin:0;font-size:clamp(20px,2.2vw,28px);text-transform:uppercase;letter-spacing:-.02em;font-weight:500;line-height:1.05}
+  .fc .row2 p span{display:block;text-transform:none;letter-spacing:0;font-weight:400;font-size:15px;color:var(--mute);margin-top:8px}
+  .fc .row2 nav{display:flex;gap:22px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .fc .row2 nav a:hover{color:var(--fg)}
+  .fc .base{display:flex;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+
+  @media (max-width:760px){
+    .h0 nav,.ha nav,.hb nav,.hc nav{display:none}
+    .hb{grid-template-columns:1fr auto}
+    .hc{grid-template-columns:1fr}
+    .hc .mark{justify-content:center}
+    .fb{grid-template-columns:1fr}
+    .fb .cols{grid-template-columns:repeat(2,auto)}
+    .fc .feat{grid-template-columns:auto minmax(0,1fr)}
+    .fc .feat .acts{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}
+  }
+  .phone-note{display:none;color:var(--mute);font-size:12px;margin-top:8px}
+  @media (max-width:760px){ .phone-note{display:block} }
+</style>
+</head>
+<body>
+<div id="hdr"></div>
+
+<div class="intro">
+  <h1 class="mono">Opciones · header + footer</h1>
+  <p>Compare and pick one of each, e.g. "header B + footer A". The dashed box marks where each piece sits on the page. Hover the candies and links: some options react.</p>
+</div>
+
+<section class="group">
+  <h2>Header</h2>
+
+  <div class="opt"><div class="opt-label"><b>NOW</b><span>What's live: plain text, everything the same size and grey.</span></div>
+    <div class="frame"><div id="h0"></div><div class="ghost">page…</div></div></div>
+
+  <div class="opt"><div class="opt-label"><b>A · LOGO + CANDY</b><span>The real logo as the mark. The page you're on gets a candy in front of it (in the newest release's colour); other links show it on hover.</span></div>
+    <div class="frame"><div id="ha"></div><div class="ghost">page…</div></div></div>
+
+  <div class="opt"><div class="opt-label"><b>B · INFORMED</b><span>Bigger nav with counts (Releases 46, Artists 33), the tagline under the name, and the newest release on the right with its cover.</span></div>
+    <div class="frame"><div id="hb"></div><div class="ghost">page…</div></div></div>
+
+  <div class="opt"><div class="opt-label"><b>C · CENTRED</b><span>Name in the middle with a candy that spins on hover; nav split left and right. More like a shop or a magazine.</span></div>
+    <div class="frame"><div id="hc"></div><div class="ghost">page…</div></div></div>
+  <p class="phone-note">On a phone all headers collapse to name + Menú, so compare these on a computer.</p>
+</section>
+
+<section class="group">
+  <h2>Footer</h2>
+
+  <div class="opt"><div class="opt-label"><b>NOW</b><span>What's live: links left, tagline right, random "sabor de hoy".</span></div>
+    <div class="frame"><div class="ghost">…page</div><div id="ftr"></div></div></div>
+
+  <div class="opt"><div class="opt-label"><b>A · CANDY BOX</b><span>Every release as one candy in its cover colour, all 46 in a box. Hover one to see the release, click to open it. The only colour in the footer, and it's the catalogue.</span></div>
+    <div class="frame"><div class="ghost">…page</div><div id="fa"></div></div></div>
+
+  <div class="opt"><div class="opt-label"><b>B · WRAPPER LABEL</b><span>A "nutrition facts" label for the label: ingredients, flavours, wrap, made in CDMX, current batch. Plays with "custom-wrapped".</span></div>
+    <div class="frame"><div class="ghost">…page</div><div id="fb"></div></div></div>
+
+  <div class="opt"><div class="opt-label"><b>C · SABOR DE HOY</b><span>The random flavour becomes the feature: a cover, title and artist, plus a "otro sabor" candy to shuffle. Tagline + links underneath.</span></div>
+    <div class="frame"><div class="ghost">…page</div><div id="fc"></div></div></div>
+</section>
+
+<script src="releases-data.js?v=20261114142213"></script>
+<script src="common.js?v=20261114142213"></script>
+<script>
+const {R, esc, candy, artists} = DT;
+DT.mount('options.html');
+document.getElementById('hdr').style.display = 'none';   // the options carry their own headers
+const h = R[0];
+const pages = [['releases.html','Releases',R.length],['artists.html','Artists',artists.length],['../','Factory'],['about.html','About']];
+const lang = `<span style="display:flex;gap:10px"><a class="nav-a on" href="#">ES</a><a class="nav-a" href="#">EN</a></span>`;
+const ON = 'releases.html';
+
+document.getElementById('h0').innerHTML = `<div class="h0"><a class="mark" href="index.html">Democratic Taste</a>
+  <nav>${pages.map(([u,l]) => `<a class="nav-a ${u===ON?'on':''}" href="${u}">${l}</a>`).join('')}</nav>${lang}</div>`;
+
+document.getElementById('ha').innerHTML = `<div class="ha"><a class="mark" href="index.html"><img src="img/logo-3d.png" alt=""><span>Democratic Taste</span></a>
+  <nav>${pages.map(([u,l]) => `<a class="nav-a ${u===ON?'on':''}" href="${u}">${candy(h.color)}${l}</a>`).join('')}</nav>${lang}</div>`;
+
+document.getElementById('hb').innerHTML = `<div class="hb"><a class="mark" href="index.html">Democratic Taste<small>Tasty Tunes Factory · CDMX</small></a>
+  <nav>${pages.map(([u,l,n]) => `<a class="${u===ON?'on':''}" href="${u}">${l}${n?`<sup>${n}</sup>`:''}</a>`).join('')}</nav>
+  <a class="new" href="releases.html#${h.cat}"><img src="${h.img}" alt=""><span><span class="mono mute">Nuevo</span><br>${esc(h.title)}</span></a></div>`;
+
+document.getElementById('hc').innerHTML = `<div class="hc">
+  <nav>${pages.slice(0,2).map(([u,l]) => `<a class="nav-a ${u===ON?'on':''}" href="${u}">${l}</a>`).join('')}</nav>
+  <a class="mark" href="index.html">${candy(h.color)}democratic taste${candy(h.color)}</a>
+  <nav class="r">${pages.slice(2).map(([u,l]) => `<a class="nav-a" href="${u}">${l}</a>`).join('')}${lang}</nav></div>`;
+
+const listen = `<a href="https://democratictaste.bandcamp.com" target="_blank" rel="noopener">Bandcamp</a><a href="https://soundcloud.com/democratictaste" target="_blank" rel="noopener">SoundCloud</a><a href="#">Spotify</a><a href="#">Beatport</a><a href="#">YouTube</a>`;
+const label = `<a href="releases.html">Releases</a><a href="artists.html">Artists</a><a href="about.html">About</a><a href="about.html#demos">Send demos</a>`;
+const social = `<a href="https://instagram.com/democratictaste" target="_blank" rel="noopener">Instagram</a>`;
+
+// A — candy box
+document.getElementById('fa').innerHTML = `<div class="fa">
+  <div class="top"><h3>Fine selected candy for your ears</h3><span class="mono mute">${R.length} sabores · elige uno</span></div>
+  <div class="box">${R.map(r => `<a href="releases.html#${r.cat}" data-t="${r.cat} · ${esc(r.title)}" aria-label="${r.cat} — ${esc(r.title)}">${candy(r.color)}</a>`).join('')}</div>
+  <div class="bottom"><span>© Democratic Taste · Tasty Tunes Factory · CDMX</span>
+    <nav>${listen}${social}<a href="about.html#demos">Demos</a></nav></div></div>`;
+
+// B — wrapper label
+document.getElementById('fb').innerHTML = `<div class="fb">
+  <div class="left"><p>Custom-wrapped<br>electronic music</p>
+    <div class="cols"><div><em>Escuchar</em>${listen}</div><div><em>Sello</em>${label}</div><div><em>Social</em>${social}</div></div></div>
+  <div class="label">
+    <h3>Democratic Taste</h3>
+    <div class="sub">Tasty Tunes Factory · contenido: ${R.length} sabores</div>
+    <dl>
+      <div><dt>Ingredientes</dt><dd>${artists.length} artistas + sus instrumentos</dd></div>
+      <div><dt>Sabor</dt><dd>Las rolas</dd></div>
+      <div><dt>Envoltura</dt><dd>${R.length} artistas visuales</dd></div>
+      <div><dt>Hecho en</dt><dd>CDMX, desde 2020</dd></div>
+    </dl>
+    <div class="may">Puede contener house, disco, breaks, techno y ambient. A different flavor for every palate.</div>
+    <div class="lot"><span>Lote ${h.cat}</span>${candy(h.color)}</div>
+  </div>
+  <div class="base"><span>© Democratic Taste · CDMX</span><span>All genres, no judgement.</span></div></div>`;
+
+// C — flavour of the day
+document.getElementById('fc').innerHTML = `<div class="fc">
+  <div class="feat"><a id="fcImgL" href="#"><img id="fcImg" alt=""></a>
+    <div><span class="mono mute">Tu sabor de hoy · <span id="fcCat"></span></span><div class="t" id="fcT"></div><div class="a" id="fcA"></div></div>
+    <div class="acts"><a class="link" id="fcL" href="#">Probar →</a><button class="shuffle" id="fcS">Otro sabor <span id="fcC"></span></button></div></div>
+  <div class="row2"><p>Custom-wrapped electronic music<span>A different flavor for every palate.</span></p>
+    <nav>${listen}${social}<a href="about.html#demos">Demos</a></nav></div>
+  <div class="base"><span>© Democratic Taste · Tasty Tunes Factory · CDMX</span><span>All genres, no judgement.</span></div></div>`;
+let last = -1;
+function pick(){
+  let i; do { i = Math.floor(Math.random()*R.length); } while (i === last); last = i; const r = R[i];
+  document.getElementById('fcImg').src = r.img;
+  document.getElementById('fcImgL').href = document.getElementById('fcL').href = `releases.html#${r.cat}`;
+  document.getElementById('fcCat').textContent = r.cat;
+  document.getElementById('fcT').textContent = r.title;
+  document.getElementById('fcA').textContent = r.artist + ' · wrap ' + r.art;
+  document.getElementById('fcC').innerHTML = candy(r.color);
+  document.getElementById('fcL').style.setProperty('--c', r.color);
+}
+pick(); document.getElementById('fcS').onclick = pick;
+</script>
+</body>
+</html>
