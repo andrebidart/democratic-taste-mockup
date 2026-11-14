@@ -38,15 +38,31 @@ h1,h2,h3{font-weight:500;letter-spacing:-.01em;margin:0}
 /* candy: tiny, only where it means "this release" */
 .candy{width:18px;height:9px;flex:none;display:inline-block;vertical-align:middle}
 
-/* footer: tagline + three link columns + base row */
+/* footer: link columns left, tagline right; the candy takes a random release's colour */
 .foot{padding:clamp(90px,12vw,160px) var(--pad) 32px}
-.foot-big{font-size:clamp(26px,3.6vw,48px);line-height:.95;letter-spacing:-.03em;text-transform:uppercase;font-weight:500}
-.foot-big .candy{width:clamp(30px,3.4vw,46px);height:auto;margin-left:.2em;vertical-align:baseline}
-.foot-sub{margin:14px 0 0;color:var(--mute);font-size:15px}
-.foot-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:52px 0 44px;max-width:640px}
+.foot-top{display:flex;justify-content:space-between;align-items:flex-end;gap:48px 64px;flex-wrap:wrap;margin-bottom:44px}
+.foot-cols{display:grid;grid-template-columns:repeat(3,auto);gap:24px clamp(32px,5vw,72px)}
 .foot-cols div{display:flex;flex-direction:column;gap:9px}
 .foot-cols em{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
 .foot-cols a{color:#bdb9c1;font-size:14px;transition:color .2s}
 .foot-cols a:hover{color:var(--fg)}
+.foot-tag{text-align:right;margin-left:auto}
+.foot-big{font-size:clamp(26px,3.6vw,48px);line-height:.95;letter-spacing:-.03em;text-transform:uppercase;font-weight:500}
+.flavor-candy{all:unset;cursor:pointer;display:inline-block;vertical-align:baseline;margin-left:.2em;transition:transform .3s}
+.flavor-candy .candy{width:clamp(30px,3.4vw,46px);height:auto;display:block}
+.flavor-candy .candy *{fill:var(--fc,var(--fg));transition:fill .5s}
+.flavor-candy:hover{transform:rotate(-14deg) scale(1.12)}
+.flavor-candy.twist{animation:twist .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes twist{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.foot-sub{margin:14px 0 0;color:var(--mute);font-size:15px}
+.flavor{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:4px 8px;margin-top:22px;padding-bottom:4px;border-bottom:1px solid var(--fc,var(--line));font-size:14px;transition:border-color .5s}
+.flavor .fl-t{color:var(--fg)}
+.flavor:hover .fl-t{color:var(--fc,var(--fg))}
 .foot-base{display:flex;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){ .flavor-candy.twist{animation:none} }
+@media (max-width:760px){
+  .foot-top{flex-direction:column-reverse;align-items:stretch}
+  .foot-tag{text-align:left;margin-left:0}
+  .flavor{justify-content:flex-start}
+}
 @media (max-width:520px){ .foot-cols{grid-template-columns:repeat(2,minmax(0,1fr))} }
