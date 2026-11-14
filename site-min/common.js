@@ -21,8 +21,19 @@ window.DT = (function(){
   }
   function footer(){
     return `<footer class="foot">
-      <span>Democratic Taste · CDMX · 2020</span>
-      <nav><a href="https://democratictaste.bandcamp.com" target="_blank" rel="noopener">Bandcamp</a><a href="https://soundcloud.com/democratictaste" target="_blank" rel="noopener">SoundCloud</a><a href="https://instagram.com/democratictaste" target="_blank" rel="noopener">Instagram</a><a href="about.html#demos">Demos</a></nav>
+      <div class="foot-big">Custom-wrapped<br>electronic music ${candy('#ece9e4')}</div>
+      <p class="foot-sub">A different flavor for every palate.</p>
+      <div class="foot-cols">
+        <div><em>Escuchar</em>
+          <a href="https://democratictaste.bandcamp.com" target="_blank" rel="noopener">Bandcamp</a>
+          <a href="https://soundcloud.com/democratictaste" target="_blank" rel="noopener">SoundCloud</a>
+          <a href="#">Spotify</a><a href="#">Beatport</a><a href="#">YouTube</a></div>
+        <div><em>Sello</em>
+          <a href="releases.html">Releases</a><a href="artists.html">Artists</a><a href="about.html">About</a><a href="about.html#demos">Send demos</a></div>
+        <div><em>Social</em>
+          <a href="https://instagram.com/democratictaste" target="_blank" rel="noopener">Instagram</a></div>
+      </div>
+      <div class="foot-base"><span>© Democratic Taste · Tasty Tunes Factory · CDMX</span><span>All genres, no judgement.</span></div>
     </footer>`;
   }
   document.addEventListener('click', e => {
