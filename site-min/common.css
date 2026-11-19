@@ -16,7 +16,6 @@ img{display:block;max-width:100%}
 header.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:32px;padding:14px var(--pad);background:var(--bg);border-bottom:1px solid var(--line)}
 .mark{display:flex;align-items:center;gap:16px;margin-right:auto}
 .mark img{height:44px;width:auto}
-.mark small{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;line-height:1.5;color:var(--mute);padding-left:16px;border-left:1px solid var(--line)}
 .nav{display:flex;gap:28px;align-items:center}
 .nav a{display:inline-flex;align-items:center;gap:7px;font-size:15px;color:var(--mute);transition:color .2s}
 .nav a sup{font-family:var(--mono);font-size:9px;margin-left:1px;color:#4a474e;align-self:flex-start}
@@ -31,7 +30,6 @@ header.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:
 @media (max-width:760px){
   .nav{display:none}
   .mark img{height:36px}
-  .mark small{display:none}
   header.top.open .nav{display:flex;flex-direction:column;align-items:flex-start;gap:18px;position:absolute;top:100%;left:0;right:0;padding:20px var(--pad) 28px;background:var(--bg);border-bottom:1px solid var(--line)}
   .menu-btn{all:unset;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg)}
 }
@@ -97,18 +95,23 @@ h1,h2,h3{font-weight:500;letter-spacing:-.01em;margin:0}
   .strip .strip-lot .candy{margin-left:auto}
 }
 
-/* tu sabor de hoy: its own section (common.js fills any #sabor) */
-.sabor{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:clamp(20px,3vw,40px);align-items:center;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.sabor .sb-img img{width:clamp(90px,10vw,140px);aspect-ratio:1;object-fit:cover}
-.sabor .mono{display:block;margin-bottom:10px}
-.sabor .sb-t{font-size:clamp(24px,3vw,42px);font-weight:500;letter-spacing:-.02em;line-height:1}
-.sabor .sb-a{margin-top:6px}
-.sabor .sb-acts{display:flex;flex-direction:column;align-items:flex-end;gap:14px}
-.sb-shuffle{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
-.sb-shuffle:hover{color:var(--fg)}
-.sb-shuffle .candy{width:30px;height:15px;transition:transform .5s}
-.sb-shuffle:hover .candy{transform:rotate(-20deg) scale(1.15)}
-@media (max-width:760px){
-  .sabor{grid-template-columns:auto minmax(0,1fr)}
-  .sabor .sb-acts{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}
-}
+/* tu sabor de hoy: small floating pill (common.js) */
+.sabor-pill{position:fixed;right:clamp(12px,2vw,24px);bottom:clamp(12px,2vw,24px);z-index:30;display:flex;align-items:center;gap:4px;padding:5px 6px 5px 8px;background:rgba(10,10,11,.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:99px;box-shadow:0 10px 30px rgba(0,0,0,.5);font-size:13px;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .35s,transform .35s,border-color .3s}
+.sabor-pill.show{opacity:1;transform:none;pointer-events:auto;animation:bob 4.5s ease-in-out .4s infinite}
+.sabor-pill:hover{border-color:var(--fc,#3a383e);animation-play-state:paused}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.sp-candy{all:unset;cursor:pointer;display:grid;place-items:center;width:34px;height:30px}
+.sp-candy .candy{width:26px;height:13px;transition:transform .3s}
+.sp-candy:hover .candy{transform:rotate(-20deg) scale(1.15)}
+.sp-candy.twist .candy{animation:twist .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes twist{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.sp-go{display:flex;align-items:center;gap:10px;padding-right:4px;min-width:0}
+.sp-go img{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none}
+.sp-go > span{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.sp-go .mono{font-size:9px}
+.sp-t{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.sp-go:hover .sp-t{color:var(--fc,var(--fg))}
+.sp-x{all:unset;cursor:pointer;width:26px;height:26px;display:grid;place-items:center;color:var(--mute);font-size:16px;border-radius:50%}
+.sp-x:hover{color:var(--fg);background:var(--line)}
+@media (prefers-reduced-motion:reduce){ .sabor-pill.show{animation:none} .sp-candy.twist .candy{animation:none} }
+@media (max-width:420px){ .sp-t{max-width:150px} }

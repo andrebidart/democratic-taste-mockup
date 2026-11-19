@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="dt-version" content="20261119101604">
+<meta name="dt-version" content="20261119104142">
 <script>/* always show the newest published version (GitHub Pages caches pages ~10 min) */
-(function(){var V="20261119101604";if(V.indexOf("__")===0)return;
+(function(){var V="20261119104142";if(V.indexOf("__")===0)return;
 fetch("../version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){
 if(!j||!j.v||j.v===V)return;var k="dt-r-"+j.v+location.pathname;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1")}catch(e){}
 var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href)}).catch(function(){})})();</script>
@@ -13,7 +13,7 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
 <title>Democratic Taste — Home (minimal mockup)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="common.css?v=20261119101604">
+<link rel="stylesheet" href="common.css?v=20261119104142">
 <style>
   .hero{min-height:calc(88vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;padding:20px 0 30px;text-align:center}
   .hero img{width:min(420px,70%);height:auto;filter:drop-shadow(0 30px 50px rgba(0,0,0,.6))}
@@ -45,12 +45,15 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
   .grid .w{margin-top:6px;font-size:10px}
 
   /* roster: just names */
-  .roster{font-size:clamp(18px,2vw,24px);line-height:1.55;color:var(--mute);max-width:1000px}
+  .roster{font-size:clamp(18px,2vw,24px);line-height:1.55;color:var(--mute);max-width:1000px;margin-bottom:clamp(50px,7vw,100px)}
   .roster a{transition:color .2s;white-space:nowrap}
   .roster a:hover{color:var(--fg)}
   .roster .r{white-space:nowrap}
   .roster .sep{opacity:.35;margin:0 .1em 0 .45em}
   .roster .r:last-child .sep{display:none}
+  .roster-head{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:18px;margin-bottom:28px}
+  .roster-head a:hover{color:var(--fg)}
+  .rule{border:0;border-top:1px solid var(--line);margin:0}
 
   /* about + numbers */
   .about{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(28px,6vw,96px);align-items:start}
@@ -102,17 +105,15 @@ var u=new URL(location.href);u.searchParams.set("v",j.v);location.replace(u.href
   </section>
 
   <section class="sec">
+    <div class="roster-head"><span class="mono">Artists</span><a class="mono mute" href="artists.html" id="rosterN"></a></div>
     <div class="roster" id="roster"></div>
   </section>
-
-  <section class="sec" style="padding-top:clamp(50px,6vw,80px)">
-    <div class="sabor" id="sabor"></div>
-  </section>
+  <hr class="rule">
 
 </main>
 <div id="ftr"></div>
-<script src="releases-data.js?v=20261119101604"></script>
-<script src="common.js?v=20261119101604"></script>
+<script src="releases-data.js?v=20261119104142"></script>
+<script src="common.js?v=20261119104142"></script>
 <script>
 const {R, esc, candy, artists, slug} = DT;
 DT.mount('index.html');
@@ -125,6 +126,7 @@ nw.href = `releases.html#${h.cat}`;
 nw.innerHTML = `<img src="${h.img}" alt=""><span class="mono mute">Nuevo</span> <span>${esc(h.title)}</span> <span class="mute">— ${esc(h.artist)}</span> ${candy(h.color)}`;
 
 // roster: plain names, linked
+document.getElementById('rosterN').textContent = artists.length + ' →';
 document.getElementById('roster').innerHTML = artists.map(a => `<span class="r"><a href="artists.html#${slug(a)}">${esc(a)}</a><span class="sep">/</span></span>`).join(' ');
 </script>
 </body>

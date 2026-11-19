@@ -17,7 +17,7 @@ window.DT = (function(){
     const counts = {'releases.html': R.length, 'artists.html': artists.length};
     const showNew = active !== 'index.html' && active !== 'releases.html';   // those pages already lead with the newest release
     return `<header class="top">
-      <a class="mark" href="index.html" aria-label="Democratic Taste — inicio"><img src="img/logo-letras.png" alt="Democratic Taste"><small>Tasty Tunes<br>Factory · CDMX</small></a>
+      <a class="mark" href="index.html" aria-label="Democratic Taste — inicio"><img src="img/logo-letras.png" alt="Democratic Taste"></a>
       <nav class="nav">${pages.map(([u,l]) => `<a class="${active===u?'on':''}" href="${u}">${candy(h.color)}${l}${counts[u]?`<sup>${counts[u]}</sup>`:''}</a>`).join('')}</nav>
       ${showNew ? `<a class="new" href="releases.html#${h.cat}"><img src="${h.img}" alt=""><span><span class="mono mute">Nuevo</span><br>${esc(h.title)}</span></a>` : ''}
       <button class="menu-btn" aria-expanded="false">Menú</button>
@@ -66,25 +66,33 @@ window.DT = (function(){
       <div class="foot-base"><span>© Democratic Taste · CDMX</span><span>All genres, no judgement.</span><nav class="lang"><a class="on" href="#">ES</a><a href="#">EN</a></nav></div>
     </footer>`;
   }
-  // "tu sabor de hoy": a random release, click the candy for another. Mounts wherever a #sabor element exists.
+  // "tu sabor de hoy": a small pill floating in the corner. Shows after the first screen, hides over the footer.
+  // Click the candy for another flavour, the rest opens the release, × hides it for this visit.
   function sabor(){
-    const el = document.getElementById('sabor');
-    if (!el) return;
-    el.innerHTML = `<a class="sb-img" href="#"><img alt=""></a>
-      <div class="sb-txt"><span class="mono mute">Tu sabor de hoy · <span class="sb-cat"></span></span><div class="sb-t"></div><div class="sb-a mute"></div></div>
-      <div class="sb-acts"><a class="link sb-go" href="#">Probar →</a><button class="sb-shuffle">Otro sabor <span class="sb-c"></span></button></div>`;
+    try { if (sessionStorage.getItem('dt-sabor-off')) return; } catch(e){}
+    const el = document.createElement('div');
+    el.className = 'sabor-pill';
+    el.innerHTML = `<button class="sp-candy" aria-label="Otro sabor" title="Otro sabor"></button>
+      <a class="sp-go" href="#"><img alt=""><span><span class="mono mute">Tu sabor de hoy</span><span class="sp-t"></span></span></a>
+      <button class="sp-x" aria-label="Cerrar">×</button>`;
+    document.body.appendChild(el);
     const q = s => el.querySelector(s);
     let last = -1;
     const pick = () => {
       let i; do { i = Math.floor(Math.random() * R.length); } while (i === last && R.length > 1); last = i;
-      const r = R[i], url = `releases.html#${r.cat}`;
-      q('.sb-img img').src = r.img; q('.sb-img').href = q('.sb-go').href = url;
-      q('.sb-cat').textContent = r.cat; q('.sb-t').textContent = r.title;
-      q('.sb-a').textContent = r.artist + (r.art ? ' · Wrap ' + r.art : '');
-      q('.sb-c').innerHTML = candy(r.color); q('.sb-go').style.setProperty('--c', r.color);
+      const r = R[i];
+      q('.sp-go').href = `releases.html#${r.cat}`; q('.sp-go img').src = r.img;
+      q('.sp-t').textContent = r.title; q('.sp-candy').innerHTML = candy(r.color);
+      el.style.setProperty('--fc', r.color);
     };
     pick();
-    q('.sb-shuffle').addEventListener('click', pick);
+    q('.sp-candy').addEventListener('click', () => { const c = q('.sp-candy'); c.classList.remove('twist'); void c.offsetWidth; c.classList.add('twist'); pick(); });
+    q('.sp-x').addEventListener('click', () => { el.remove(); try { sessionStorage.setItem('dt-sabor-off','1'); } catch(e){} });
+    let overFoot = false;
+    const upd = () => el.classList.toggle('show', scrollY > innerHeight * .5 && !overFoot);
+    const ft = document.getElementById('ftr');
+    if (ft && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => { overFoot = e.isIntersecting; upd(); }).observe(ft);
+    addEventListener('scroll', upd, {passive:true}); upd();
   }
   document.addEventListener('click', e => {
     const b = e.target.closest('.menu-btn'), hdr = document.querySelector('header.top');
